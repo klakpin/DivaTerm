@@ -239,7 +239,7 @@ public class TerminalChoice implements Choice {
 
             if (selectedIds.contains(selectedId)) {
                 selectedIds.remove((Integer) selectedId);
-            } else if (selectedIds.size() < maxSelectResults) {
+            } else if (maxSelectResults != -1 && selectedIds.size() < maxSelectResults) {
                 selectedIds.add(selectedId);
             }
         } else if (input == TerminalWrapper.ARROW_DOWN || input == TerminalWrapper.ARROW_UP) {

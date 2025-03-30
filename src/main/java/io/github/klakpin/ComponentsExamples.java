@@ -19,7 +19,7 @@ public class ComponentsExamples {
     void runExamples() throws IOException, InterruptedException {
         try (var presenter = ConsoleTerminalPresenter.standard()) {
 //            prompt(presenter);
-//            messages(presenter);
+            messages(presenter);
             interactiveChoice(presenter);
             waitWithDetails(presenter);
             waitWithoutDetails(presenter);

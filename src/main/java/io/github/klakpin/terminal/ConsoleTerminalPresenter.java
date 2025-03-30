@@ -119,6 +119,7 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
                 .withQuestion(question)
                 .withFilteringEnabled(true)
                 .withMultiSelect(true)
+                .withMaxSelectResults(limit)
                 .withOptionsComparator(new FuzzyDisplayTextComparator())
                 .withOptions(optionsMap.values().stream().toList())
                 .build();
