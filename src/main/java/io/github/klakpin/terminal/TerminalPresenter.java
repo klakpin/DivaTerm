@@ -1,8 +1,6 @@
 package io.github.klakpin.terminal;
 
-import io.github.klakpin.components.impl.choice.OptionsComparator;
-import io.github.klakpin.components.impl.choice.OptionsProvider;
-
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.SubmissionPublisher;
 
@@ -28,9 +26,5 @@ public interface TerminalPresenter {
 
     Boolean promptBoolean(String question);
 
-    void interactiveChoice(String question,
-                           int maxResults,
-                           OptionsProvider optionsProvider,
-                           OptionsComparator comparator,
-                           Double filterValuesCutoff);
+    String stringChoice(String question, List<String> options);
 }

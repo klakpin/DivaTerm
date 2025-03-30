@@ -1,9 +1,10 @@
 package io.github.klakpin.terminal;
 
 import io.github.klakpin.components.ComponentsFactory;
-import io.github.klakpin.components.impl.choice.OptionsComparator;
-import io.github.klakpin.components.impl.choice.OptionsProvider;
+import io.github.klakpin.components.api.choice.ChoiceOption;
+import io.github.klakpin.components.api.choice.comparator.FuzzyDisplayTextComparator;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.SubmissionPublisher;
@@ -69,15 +70,20 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
     }
 
     @Override
-    public void interactiveChoice(String question,
-                                  int maxResults,
-                                  OptionsProvider optionsProvider,
-                                  OptionsComparator comparator,
-                                  Double filterValuesCutoff) {
-        componentsFactory
-                .terminalInteractiveChoice()
-                .interactiveChoice(question, maxResults, optionsProvider, comparator, filterValuesCutoff);
+    public String stringChoice(String question, List<String> options) {
+        var optionsMap = new HashMap<Integer, ChoiceOption>();
+        for (int i = 0; i < options.size(); i++) {
+            optionsMap.put(i, new ChoiceOption(i, options.get(i)));
+        }
+
+        var selected = componentsFactory.choiceBuilder()
+                .withQuestion(question)
+                .withFilteringEnabled(true)
+                .withOptionsComparator(new FuzzyDisplayTextComparator())
+                .withOptions(optionsMap.values().stream().toList())
+                .build()
+                .get();
+
+        return optionsMap.get(selected.id()).displayText();
     }
-
-
 }

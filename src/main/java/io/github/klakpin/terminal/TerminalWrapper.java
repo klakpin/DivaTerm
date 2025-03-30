@@ -103,6 +103,26 @@ public class TerminalWrapper implements Closeable, Flushable {
         }
     }
 
+    public void cleanLines(int size, Cursor sourcePosition) {
+        var terminalWidth = terminal.getWidth();
+        var emptyLine = " ".repeat(terminalWidth);
+
+        terminal.puts(InfoCmp.Capability.cursor_address, sourcePosition.getY(), 0);
+
+        for (int i = 0; i < size; i++) {
+            terminal.writer().println(emptyLine);
+
+        }
+        terminal.flush();
+    }
+
+    public void forwardCleanup(int size) {
+        for (int i = 0; i < size; i++) {
+            terminal.writer().println(" ".repeat(terminal.getWidth()));
+        }
+        terminal.flush();
+    }
+
 
     private void printPollInfo(Boolean escapeChar, int lastInput, int esc1, int esc2, int esc3) {
         var debugLines = List.of(

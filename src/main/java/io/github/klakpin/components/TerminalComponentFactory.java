@@ -1,14 +1,15 @@
 package io.github.klakpin.components;
 
-import io.github.klakpin.components.api.InteractiveChoice;
+import io.github.klakpin.components.api.choice.Choice;
 import io.github.klakpin.components.api.Message;
 import io.github.klakpin.components.api.Prompt;
 import io.github.klakpin.components.api.Wait;
 import io.github.klakpin.components.helper.TerminalCleaner;
 import io.github.klakpin.components.impl.TerminalMessage;
 import io.github.klakpin.components.impl.TerminalPrompt;
-import io.github.klakpin.components.impl.choice.TerminalInteractiveChoice;
+import io.github.klakpin.components.impl.choice.TerminalChoice;
 import io.github.klakpin.components.impl.TerminalWait;
+import io.github.klakpin.components.impl.choice.TerminalChoiceBuilder;
 import io.github.klakpin.theme.ColorPalette;
 import org.jline.terminal.Terminal;
 
@@ -32,8 +33,10 @@ public class TerminalComponentFactory implements ComponentsFactory {
     }
 
     @Override
-    public InteractiveChoice terminalInteractiveChoice() {
-        return new TerminalInteractiveChoice(terminal, drawingExecutor, colorPalette, cleaner());
+    public Choice.ChoiceBuilder choiceBuilder() {
+        return new TerminalChoiceBuilder()
+                .withTerminal(terminal)
+                .withColorPalette(colorPalette);
     }
 
     @Override

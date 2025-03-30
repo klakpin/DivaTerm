@@ -8,6 +8,7 @@ import io.github.klakpin.theme.TerminalColorPalette;
 import org.jline.utils.InfoCmp;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.SubmissionPublisher;
@@ -23,8 +24,8 @@ public class ComponentsExamples {
         try {
 //            prompt(presenter);
 //            messages(presenter);
-//            interactiveChoice(presenter);
-            waitWithDetails(presenter);
+            interactiveChoice(presenter);
+//            waitWithDetails(presenter);
 //            waitWithoutDetails(presenter);
         } finally {
             terminal.puts(InfoCmp.Capability.cursor_visible);
@@ -54,12 +55,7 @@ public class ComponentsExamples {
     }
 
     private void interactiveChoice(TerminalPresenter presenter) {
-        presenter.interactiveChoice("Test question",
-                10,
-                filter -> Stream.of("first", "second", "thirds", "fourth", "fivth").filter(s -> s.startsWith(filter)).toList(),
-                (filter, value) -> 1D,
-                0.0
-        );
+        presenter.stringChoice("test question", List.of("first", "second", "third", "fourth", "fifth"));
     }
 
     private void waitWithoutDetails(TerminalPresenter presenter) {
