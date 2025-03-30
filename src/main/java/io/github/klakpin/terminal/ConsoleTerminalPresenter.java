@@ -86,4 +86,24 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
 
         return optionsMap.get(selected.id()).displayText();
     }
+
+    @Override
+    public List<String> stringMultiChoice(String question, List<String> options, int limit) {
+        var optionsMap = new HashMap<Integer, ChoiceOption>();
+        for (int i = 0; i < options.size(); i++) {
+            optionsMap.put(i, new ChoiceOption(i, options.get(i)));
+        }
+
+        return componentsFactory.choiceBuilder()
+                .withQuestion(question)
+                .withFilteringEnabled(true)
+                .withMultiSelect(true)
+                .withOptionsComparator(new FuzzyDisplayTextComparator())
+                .withOptions(optionsMap.values().stream().toList())
+                .build()
+                .getMulti()
+                .stream()
+                .map(s -> optionsMap.get(s.id()).displayText())
+                .toList();
+    }
 }

@@ -27,4 +27,6 @@ public interface TerminalPresenter {
     Boolean promptBoolean(String question);
 
     String stringChoice(String question, List<String> options);
+
+    List<String> stringMultiChoice(String question, List<String> options, int limit);
 }

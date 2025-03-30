@@ -55,7 +55,10 @@ public class ComponentsExamples {
     }
 
     private void interactiveChoice(TerminalPresenter presenter) {
-        presenter.stringChoice("test question", List.of("first", "second", "third", "fourth", "fifth"));
+        var result = presenter.stringChoice("test question", List.of("first", "second", "third", "fourth", "fifth"));
+//        var result = presenter.stringMultiChoice("test question", List.of("first", "second", "third", "fourth", "fifth"), 3);
+        
+        presenter.message(result.toString());
     }
 
     private void waitWithoutDetails(TerminalPresenter presenter) {
@@ -66,7 +69,6 @@ public class ComponentsExamples {
                 throw new RuntimeException(e);
             }
         }));
-
     }
 
     private void waitWithDetails(TerminalPresenter presenter) throws InterruptedException {

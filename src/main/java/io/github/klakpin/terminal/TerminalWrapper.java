@@ -13,6 +13,7 @@ public class TerminalWrapper implements Closeable, Flushable {
     public final static int ARROW_UP = -228;
     public final static int ARROW_DOWN = -1337;
     public final static int SPACE = 32;
+    public final static int TAB = 9;
     public final static int BACKSPACE = 127;
     public final static int ENTER = 13;
 
@@ -89,6 +90,7 @@ public class TerminalWrapper implements Closeable, Flushable {
                 var a = reader.read(1);
                 var b = reader.read(2);
 
+                printPollInfo(true, initial, initial, a, b);
                 if (a == 91 && b == 65) {
                     return ARROW_UP;
                 } else if (a == 91 && b == 66) {
@@ -96,6 +98,9 @@ public class TerminalWrapper implements Closeable, Flushable {
                 }
 
                 return UNKNOWN_CONTROL;
+            }
+            if (initial != -2) {
+                printPollInfo(false, initial, 0, 0, 0);
             }
             return initial;
         } catch (IOException e) {

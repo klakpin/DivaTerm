@@ -4,13 +4,11 @@ import io.github.klakpin.components.api.choice.Choice;
 import io.github.klakpin.components.api.choice.ChoiceOption;
 import io.github.klakpin.components.api.choice.OptionsComparator;
 import io.github.klakpin.components.api.choice.OptionsProvider;
-import io.github.klakpin.components.helper.TerminalCleaner;
 import io.github.klakpin.terminal.TerminalWrapper;
 import io.github.klakpin.theme.ColorPalette;
 import org.jline.terminal.Terminal;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class TerminalChoiceBuilder implements Choice.ChoiceBuilder {
@@ -19,7 +17,8 @@ public class TerminalChoiceBuilder implements Choice.ChoiceBuilder {
     private ColorPalette colorPalette;
 
     private String question = null;
-    private int maxResults = 10;
+    private int maxDisplayResults = 10;
+    private int maxSelectResults = 10;
     private boolean multiSelect = false;
     private boolean filteringEnabled = false;
 
@@ -49,8 +48,14 @@ public class TerminalChoiceBuilder implements Choice.ChoiceBuilder {
     }
 
     @Override
-    public Choice.ChoiceBuilder withMaxResults(int maxResults) {
-        this.maxResults = maxResults;
+    public Choice.ChoiceBuilder withMaxDisplayResults(int maxDisplayResults) {
+        this.maxDisplayResults = maxDisplayResults;
+        return this;
+    }
+
+    @Override
+    public Choice.ChoiceBuilder withMaxSelectResults(int maxSelectResults) {
+        this.maxSelectResults = maxSelectResults;
         return this;
     }
 
@@ -98,7 +103,8 @@ public class TerminalChoiceBuilder implements Choice.ChoiceBuilder {
                 terminalWrapper,
                 colorPalette,
                 question,
-                maxResults,
+                maxDisplayResults,
+                maxSelectResults,
                 multiSelect,
                 filteringEnabled,
                 filteringSimilarityCutoff,

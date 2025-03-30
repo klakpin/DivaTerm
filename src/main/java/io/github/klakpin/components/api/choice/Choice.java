@@ -1,7 +1,5 @@
 package io.github.klakpin.components.api.choice;
 
-import io.github.klakpin.components.helper.TerminalCleaner;
-import io.github.klakpin.terminal.TerminalWrapper;
 import io.github.klakpin.theme.ColorPalette;
 import org.jline.terminal.Terminal;
 
@@ -11,6 +9,8 @@ public interface Choice {
 
     ChoiceOption get();
 
+    List<ChoiceOption> getMulti();
+
     interface ChoiceBuilder {
 
         ChoiceBuilder withTerminal(Terminal terminal);
@@ -19,7 +19,9 @@ public interface Choice {
 
         ChoiceBuilder withQuestion(String question);
 
-        ChoiceBuilder withMaxResults(int maxResults);
+        ChoiceBuilder withMaxDisplayResults(int maxResults);
+
+        ChoiceBuilder withMaxSelectResults(int maxSelectResults);
 
         ChoiceBuilder withMultiSelect(Boolean multiSelect);
 
