@@ -1,6 +1,7 @@
 package io.github.klakpin.terminal;
 
 import io.github.klakpin.components.ComponentsFactory;
+import io.github.klakpin.components.api.choice.Choice.ChoiceBuilder;
 import io.github.klakpin.components.api.choice.ChoiceOption;
 import io.github.klakpin.components.api.choice.comparator.FuzzyDisplayTextComparator;
 
@@ -8,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.SubmissionPublisher;
+import java.util.function.Function;
 
 import static io.github.klakpin.theme.ColorPalette.ColorFeature.*;
 
@@ -106,6 +108,19 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
                 .map(s -> optionsMap.get(s.id()).displayText())
                 .toList();
     }
+
+
+    @Override
+    public List<ChoiceOption> stringMultiChoiceRaw(Function<ChoiceBuilder, ChoiceBuilder> builder) {
+        var rawBuilder = componentsFactory
+                .choiceBuilder()
+                .withMultiSelect(true);
+
+        return builder.apply(rawBuilder)
+                .build()
+                .getMulti();
+    }
+
 
     @Override
     public void close() throws Exception {

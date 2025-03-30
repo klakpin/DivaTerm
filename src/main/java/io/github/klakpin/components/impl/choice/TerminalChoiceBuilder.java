@@ -99,6 +99,9 @@ public class TerminalChoiceBuilder implements Choice.ChoiceBuilder {
 
     @Override
     public Choice build() {
+        if (options == null && optionsProvider == null) {
+            throw new IllegalStateException("One of 'options' or 'optionsProvider' should be set for Choice component, but none was set");
+        }
         return new TerminalChoice(
                 terminalWrapper,
                 colorPalette,
