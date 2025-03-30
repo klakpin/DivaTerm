@@ -2,6 +2,7 @@ package io.github.klakpin.components.impl;
 
 import io.github.klakpin.components.api.Wait;
 import io.github.klakpin.terminal.NoopIntConsumer;
+import io.github.klakpin.terminal.TerminalWrapper;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import io.github.klakpin.components.helper.TerminalCleaner;
 import io.github.klakpin.theme.ColorPalette;
@@ -77,21 +78,24 @@ public class TerminalWait implements Wait {
 
     @Override
     public void waitWhileWithDetails(String message, SubmissionPublisher<String> details, CompletableFuture<Void> waitWhile, int maxLines) {
+        cleaner.forwardCleanup(maxLines);
+
+        initialPosition = terminal.getCursorPosition(new NoopIntConsumer());
+        initialPosition = new Cursor(initialPosition.getX(), initialPosition.getY() - maxLines);
+
         detailsBuffer = new CircularFifoQueue<>(maxLines);
         for (int i = 0; i < maxLines; i++) {
             detailsBuffer.add("");
         }
 
-        cleaner.forwardCleanup(maxLines);
-
-        initialPosition = terminal.getCursorPosition(new NoopIntConsumer());
-        initialPosition = new Cursor(initialPosition.getX(), initialPosition.getY() - maxLines);
-        terminal.flush();
-
         var consumer = details.consume(s -> detailsBuffer.add(s));
 
         try {
-            var task = drawingExecutor.scheduleAtFixedRate(() -> updateAnimation(message), 0, 85, TimeUnit.MILLISECONDS);
+            var task = drawingExecutor.scheduleAtFixedRate(() -> updateAnimation(message),
+                    25 /* small initial delay for forward cleanup to be rendered */,
+                    85,
+                    TimeUnit.MILLISECONDS
+            );
 
             waitWhile.whenComplete((unused, throwable) -> task.cancel(true));
 
@@ -101,6 +105,7 @@ public class TerminalWait implements Wait {
         } finally {
             consumer.cancel(true);
             cleaner.cleanLines(maxLines, initialPosition);
+            new TerminalWrapper(terminal).setCursorPosition(initialPosition.getY(), initialPosition.getX());
         }
     }
 }

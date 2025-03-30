@@ -21,10 +21,10 @@ public class ComponentsExamples {
         var presenter = new ConsoleTerminalPresenter(componentsFactory);
 
         try {
-            prompt(presenter);
+//            prompt(presenter);
 //            messages(presenter);
 //            interactiveChoice(presenter);
-//            waitWithDetails(presenter);
+            waitWithDetails(presenter);
 //            waitWithoutDetails(presenter);
         } finally {
             terminal.puts(InfoCmp.Capability.cursor_visible);
