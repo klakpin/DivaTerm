@@ -35,18 +35,11 @@ public class TerminalChoice implements Choice {
 
     Cursor initialPosition;
 
-    InteractiveChoiceState choiceState = new InteractiveChoiceState(0, "");
+    private int activeElementIndex = 0;
+    private StringBuffer filter = new StringBuffer();
+    private List<Integer> selected = new ArrayList<>();
 
-    public TerminalChoice(TerminalWrapper terminal,
-                          ColorPalette colorPalette,
-                          String question,
-                          int maxResults,
-                          boolean multiSelect,
-                          boolean filteringEnabled,
-                          Double filteringSimilarityCutoff,
-                          List<ChoiceOption> options,
-                          OptionsProvider provider,
-                          OptionsComparator optionsComparator) {
+    public TerminalChoice(TerminalWrapper terminal, ColorPalette colorPalette, String question, int maxResults, boolean multiSelect, boolean filteringEnabled, Double filteringSimilarityCutoff, List<ChoiceOption> options, OptionsProvider provider, OptionsComparator optionsComparator) {
         this.terminal = terminal;
         this.colorPalette = colorPalette;
         this.question = question;
@@ -96,12 +89,12 @@ public class TerminalChoice implements Choice {
             if (input == TerminalWrapper.ENTER) {
                 break;
             } else if (input != READ_EXPIRED) {
-                choiceState = updateState(input, choiceState, visibleOptions.size());
+                updateState(input, visibleOptions.size());
                 needRedraw = true;
             }
         }
 
-        return visibleOptions.get(choiceState.selection);
+        return visibleOptions.get(activeElementIndex);
     }
 
 
@@ -111,7 +104,7 @@ public class TerminalChoice implements Choice {
         } else if (options != null) {
             return filterAndSortOptions(options);
         } else if (optionsProvider != null) {
-            return filterAndSortOptions(optionsProvider.get(choiceState.filter));
+            return filterAndSortOptions(optionsProvider.get(filter.toString()));
         } else {
             throw new IllegalStateException("One of options or optionsProvider should be set for Choice component, but none was set");
         }
@@ -121,10 +114,13 @@ public class TerminalChoice implements Choice {
         var debugLines = new ArrayList<String>();
 
         var result = options.stream()
-                .map(option -> Pair.of(option, optionsComparator.getSimilarity(choiceState.filter, option)))
+                .map(option -> Pair.of(option, optionsComparator.getSimilarity(filter.toString(), option)))
                 .peek(value -> debugLines.add(String.format("'%s' = '%s'", value.getKey().displayText(), value.getValue())))
                 .filter(value -> value.getRight() >= filteringSimilarityCutoff)
                 .sorted(Comparator.comparingDouble(Pair::getRight))
+                .toList()
+                .reversed()
+                .stream()
                 .limit(maxResults)
                 .map(Pair::getKey)
                 .toList();
@@ -134,14 +130,14 @@ public class TerminalChoice implements Choice {
     }
 
     private void drawChoice(List<ChoiceOption> visibleOption) {
-        var hint = buildHintString(question, choiceState.filter);
+        var hint = buildHintString();
         terminal.setCursorPosition(initialPosition.getY(), 0);
         terminal.flush();
 
         terminal.printlnFull(hint);
 
         for (int i = 0; i < visibleOption.size(); i++) {
-            if (i == choiceState.selection) {
+            if (i == activeElementIndex) {
                 terminal.printlnFull(selectedChoice(visibleOption.get(i).displayText()));
             } else {
                 terminal.printlnFull(notSelectedChoice(visibleOption.get(i).displayText()));
@@ -163,45 +159,32 @@ public class TerminalChoice implements Choice {
         return "  " + choice;
     }
 
-    private String buildHintString(String question, String filter) {
+    private String buildHintString() {
         var result = new StringBuilder();
 
-        result.append(colorPalette.apply("?", bold, info))
-                .append(" ")
-                .append(question)
-                .append(colorPalette.apply(" [Use arrows to move, type to search and filter]:", call_to_action))
-                .append(" ")
-                .append(filter);
+        result.append(colorPalette.apply("?", bold, info)).append(" ").append(question).append(colorPalette.apply(" [Use arrows to move, type to search and filter]:", call_to_action)).append(" ").append(filter);
 
-        return result
-                .append(" ".repeat(terminal.getWidth() - result.length()))
-                .toString();
+        return result.append(" ".repeat(terminal.getWidth() - result.length())).toString();
     }
 
-    private InteractiveChoiceState updateState(int input, InteractiveChoiceState currentState, int visibleOptionsCount) {
+    private void updateState(int input, int visibleOptionsCount) {
         if (input == TerminalWrapper.ARROW_DOWN || input == TerminalWrapper.ARROW_UP) {
-            return updateSelectedElement(input, currentState, visibleOptionsCount);
-        } else if (input == TerminalWrapper.BACKSPACE) {
-            return new InteractiveChoiceState(currentState.selection, StringUtils.chop(currentState.filter));
+            updateActiveElement(input, visibleOptionsCount);
+        } else if (input == TerminalWrapper.BACKSPACE && filter.length() != 0) {
+            filter.deleteCharAt(filter.length() - 1);
         } else if (Character.isLetterOrDigit(input)) {
-            return new InteractiveChoiceState(currentState.selection, currentState.filter + (char) input);
+            filter.append((char) input);
         }
-        return currentState;
     }
 
-    private InteractiveChoiceState updateSelectedElement(int input, InteractiveChoiceState currentState, int visibleOptionsCount) {
+    private void updateActiveElement(int input, int visibleOptionsCount) {
         switch (input) {
-            case TerminalWrapper.ARROW_DOWN -> {
-                return new InteractiveChoiceState(Math.floorMod(currentState.selection + 1, visibleOptionsCount), currentState.filter);
-            }
-            case TerminalWrapper.ARROW_UP -> {
-                return new InteractiveChoiceState(Math.floorMod(currentState.selection - 1, visibleOptionsCount), currentState.filter);
-            }
+            case TerminalWrapper.ARROW_DOWN ->
+                    activeElementIndex = Math.floorMod(activeElementIndex + 1, visibleOptionsCount);
+            case TerminalWrapper.ARROW_UP ->
+                    activeElementIndex = Math.floorMod(activeElementIndex - 1, visibleOptionsCount);
             default -> throw new RuntimeException("Unexpected element index update command " + input);
         }
-    }
-
-    record InteractiveChoiceState(int selection, String filter) {
     }
 }
 
