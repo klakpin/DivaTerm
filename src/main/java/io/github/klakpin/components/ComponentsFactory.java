@@ -5,7 +5,7 @@ import io.github.klakpin.components.api.Message;
 import io.github.klakpin.components.api.Prompt;
 import io.github.klakpin.components.api.Wait;
 
-public interface ComponentsFactory {
+public interface ComponentsFactory extends AutoCloseable {
     Wait buildWaitComponent();
 
     Choice.ChoiceBuilder choiceBuilder();

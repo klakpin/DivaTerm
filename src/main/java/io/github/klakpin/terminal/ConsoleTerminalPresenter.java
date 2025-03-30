@@ -106,4 +106,9 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
                 .map(s -> optionsMap.get(s.id()).displayText())
                 .toList();
     }
+
+    @Override
+    public void close() throws Exception {
+        componentsFactory.close();
+    }
 }

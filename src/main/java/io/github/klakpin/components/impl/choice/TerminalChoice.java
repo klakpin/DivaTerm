@@ -76,9 +76,9 @@ public class TerminalChoice implements Choice {
         var result = interactiveChoiceLoop();
 
         terminal.setCursorPosition(initialPosition.getY(), 0);
-        terminal.printlnFull("");
-        terminal.setCursorPosition(initialPosition.getY(), 0);
+        terminal.forwardCleanup(maxDisplayResults);
 
+        terminal.setCursorPosition(initialPosition.getY(), 0);
         terminal.flush();
         return result;
     }

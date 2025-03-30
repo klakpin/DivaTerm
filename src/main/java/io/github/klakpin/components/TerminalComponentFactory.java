@@ -52,4 +52,10 @@ public class TerminalComponentFactory implements ComponentsFactory {
     private TerminalCleaner cleaner() {
         return new TerminalCleaner(terminal);
     }
+
+    @Override
+    public void close() throws Exception {
+        terminal.close();
+        drawingExecutor.shutdownNow();
+    }
 }

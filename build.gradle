@@ -1,10 +1,11 @@
 plugins {
     id 'java'
+    id 'maven-publish'
     id 'com.gradleup.shadow' version '8.3.6'
 }
 
 group = 'io.github.klakpin'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.2-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -29,4 +30,23 @@ jar {
 
 test {
     useJUnitPlatform()
+}
+
+publishing {
+    repositories {
+        mavenLocal()
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/klakpin/DivaTerm")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            from(components.java)
+        }
+    }
 }

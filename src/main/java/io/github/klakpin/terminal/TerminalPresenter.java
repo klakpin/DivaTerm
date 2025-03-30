@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.SubmissionPublisher;
 
-public interface TerminalPresenter {
+public interface TerminalPresenter extends AutoCloseable {
 
     void message(String message);
 
