@@ -3,13 +3,16 @@ package io.github.klakpin.components.impl;
 import io.github.klakpin.components.api.Wait;
 import io.github.klakpin.terminal.NoopIntConsumer;
 import io.github.klakpin.terminal.TerminalWrapper;
+import org.apache.commons.collections4.collection.SynchronizedCollection;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import io.github.klakpin.components.helper.TerminalCleaner;
 import io.github.klakpin.theme.ColorPalette;
+import org.apache.commons.collections4.queue.SynchronizedQueue;
 import org.jline.terminal.Cursor;
 import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp;
 
+import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 
@@ -25,7 +28,7 @@ public class TerminalWait implements Wait {
     private int step = -1;
     private final char[] steps = {'⡿', '⣟', '⣯', '⣷', '⣾', '⣽', '⣻', '⢿'};
 
-    private CircularFifoQueue<String> detailsBuffer;
+    private Queue<String> detailsBuffer;
     private Cursor initialPosition;
 
     public TerminalWait(Terminal terminal,
@@ -84,10 +87,7 @@ public class TerminalWait implements Wait {
         initialPosition = terminal.getCursorPosition(new NoopIntConsumer());
         initialPosition = new Cursor(initialPosition.getX(), initialPosition.getY() - maxLines);
 
-        detailsBuffer = new CircularFifoQueue<>(maxLines);
-        for (int i = 0; i < maxLines; i++) {
-            detailsBuffer.add("");
-        }
+        initDetailsBuffer(maxLines);
 
         try {
             var drawingTask = drawingExecutor.scheduleAtFixedRate(() -> updateAnimation(message),
@@ -100,17 +100,26 @@ public class TerminalWait implements Wait {
             waitingSemaphore.acquire();
 
             var subscriber = new BufferFillingSubscriber(detailsBuffer, throwable -> {
-                drawingTask.cancel(true);
+                drawingTask.cancel(false);
                 waitingSemaphore.release();
             });
+
             details.subscribe(subscriber);
             waitingSemaphore.acquire();
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            cleaner.cleanLines(maxLines, initialPosition);
+            // +1 for the line with a spinner
+            cleaner.cleanLines(maxLines + 1, initialPosition);
             new TerminalWrapper(terminal).setCursorPosition(initialPosition.getY(), initialPosition.getX());
+        }
+    }
+
+    private void initDetailsBuffer(int maxLines) {
+        detailsBuffer = SynchronizedQueue.synchronizedQueue(new CircularFifoQueue<>(maxLines));
+        for (int i = 0; i < maxLines; i++) {
+            detailsBuffer.add("");
         }
     }
 
@@ -121,9 +130,9 @@ public class TerminalWait implements Wait {
     static final class BufferFillingSubscriber implements Flow.Subscriber<String> {
 
         private final Consumer<Throwable> completionConsumer;
-        private final CircularFifoQueue<String> detailsBuffer;
+        private final Queue<String> detailsBuffer;
 
-        BufferFillingSubscriber(CircularFifoQueue<String> detailsBuffer,
+        BufferFillingSubscriber(Queue<String> detailsBuffer,
                                 Consumer<Throwable> completionConsumer) {
             this.detailsBuffer = detailsBuffer;
             this.completionConsumer = completionConsumer;

@@ -1,13 +1,20 @@
 package io.github.klakpin.terminal;
 
 import io.github.klakpin.components.ComponentsFactory;
+import io.github.klakpin.components.TerminalComponentFactory;
 import io.github.klakpin.components.api.choice.Choice.ChoiceBuilder;
 import io.github.klakpin.components.api.choice.ChoiceOption;
 import io.github.klakpin.components.api.choice.comparator.FuzzyDisplayTextComparator;
+import io.github.klakpin.theme.TerminalColorPalette;
+import org.jline.terminal.Terminal;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.function.Function;
 
@@ -16,6 +23,18 @@ import static io.github.klakpin.theme.ColorPalette.ColorFeature.*;
 public class ConsoleTerminalPresenter implements TerminalPresenter {
 
     private final ComponentsFactory componentsFactory;
+
+    public static ConsoleTerminalPresenter standard() {
+        try {
+            return new ConsoleTerminalPresenter.Builder()
+                    .withTerminal(new JlineTerminalFactory().buildTerminal())
+                    .withColorPalette(new TerminalColorPalette())
+                    .withDrawingExecutor(Executors.newSingleThreadScheduledExecutor())
+                    .build();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to build console terminal presenter", e);
+        }
+    }
 
     public ConsoleTerminalPresenter(ComponentsFactory componentsFactory) {
         this.componentsFactory = componentsFactory;
@@ -96,14 +115,16 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
             optionsMap.put(i, new ChoiceOption(i, options.get(i)));
         }
 
-        return componentsFactory.choiceBuilder()
+        var choice = componentsFactory.choiceBuilder()
                 .withQuestion(question)
                 .withFilteringEnabled(true)
                 .withMultiSelect(true)
                 .withOptionsComparator(new FuzzyDisplayTextComparator())
                 .withOptions(optionsMap.values().stream().toList())
-                .build()
-                .getMulti()
+                .build();
+
+
+        return choice.getMulti()
                 .stream()
                 .map(s -> optionsMap.get(s.id()).displayText())
                 .toList();
@@ -123,7 +144,40 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
 
 
     @Override
-    public void close() throws Exception {
-        componentsFactory.close();
+    public void close() {
+        try {
+            componentsFactory.close();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to closed components factory", e);
+        }
+    }
+
+    static class Builder {
+        private Terminal terminal;
+        private ScheduledExecutorService drawingExecutor;
+        private TerminalColorPalette colorPalette;
+
+        public Builder withTerminal(Terminal terminal) {
+            this.terminal = terminal;
+            return this;
+        }
+
+        public Builder withDrawingExecutor(ScheduledExecutorService drawingExecutor) {
+            this.drawingExecutor = drawingExecutor;
+            return this;
+
+        }
+
+        public Builder withColorPalette(TerminalColorPalette colorPalette) {
+            this.colorPalette = colorPalette;
+            return this;
+        }
+
+        public ConsoleTerminalPresenter build() {
+            Objects.requireNonNull(terminal, "terminal instance should be set for the console terminal presenter");
+            Objects.requireNonNull(drawingExecutor, "drawing executor instance should be set for the console terminal presenter");
+            Objects.requireNonNull(colorPalette, "color palette instance should be set for the console terminal presenter");
+            return new ConsoleTerminalPresenter(new TerminalComponentFactory(terminal, drawingExecutor, colorPalette));
+        }
     }
 }

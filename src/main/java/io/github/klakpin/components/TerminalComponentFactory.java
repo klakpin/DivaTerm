@@ -12,7 +12,9 @@ import io.github.klakpin.components.impl.TerminalWait;
 import io.github.klakpin.components.impl.choice.TerminalChoiceBuilder;
 import io.github.klakpin.theme.ColorPalette;
 import org.jline.terminal.Terminal;
+import org.jline.utils.InfoCmp;
 
+import java.io.IOException;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class TerminalComponentFactory implements ComponentsFactory {
@@ -54,8 +56,15 @@ public class TerminalComponentFactory implements ComponentsFactory {
     }
 
     @Override
-    public void close() throws Exception {
-        terminal.close();
+    public void close() {
+        terminal.puts(InfoCmp.Capability.cursor_visible);
+        terminal.flush();
         drawingExecutor.shutdownNow();
+        try {
+            terminal.close();
+        } catch (IOException e) {
+            System.err.println("Failed to close terminal: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 }

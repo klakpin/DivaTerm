@@ -17,22 +17,12 @@ import java.util.stream.Stream;
 
 public class ComponentsExamples {
     void runExamples() throws IOException, InterruptedException {
-        var terminal = new JlineTerminalFactory().buildTerminal();
-        var executor = Executors.newSingleThreadScheduledExecutor();
-        var componentsFactory = new TerminalComponentFactory(terminal, executor, new TerminalColorPalette());
-        var presenter = new ConsoleTerminalPresenter(componentsFactory);
-
-        try {
+        try (var presenter = ConsoleTerminalPresenter.standard()) {
 //            prompt(presenter);
 //            messages(presenter);
-//            interactiveChoice(presenter);
+            interactiveChoice(presenter);
             waitWithDetails(presenter);
-//            waitWithoutDetails(presenter);
-        } finally {
-            terminal.puts(InfoCmp.Capability.cursor_visible);
-            terminal.flush();
-            terminal.close();
-            executor.shutdownNow();
+            waitWithoutDetails(presenter);
         }
     }
 
@@ -56,10 +46,12 @@ public class ComponentsExamples {
     }
 
     private void interactiveChoice(TerminalPresenter presenter) {
-        var result = presenter.stringChoice("test question", List.of("first", "second", "third", "fourth", "fifth"));
-//        var result = presenter.stringMultiChoice("test question", List.of("first", "second", "third", "fourth", "fifth"), 3);
+        var singleResult = presenter.stringChoice("test question", List.of("first", "second", "third", "fourth", "fifth"));
+        presenter.message(singleResult);
 
-        presenter.message(result.toString());
+        var multiResult = presenter.stringMultiChoice("test question", List.of("first", "second", "third", "fourth", "fifth"), 3);
+        presenter.message(multiResult.toString());
+
     }
 
     private void waitWithoutDetails(TerminalPresenter presenter) {
@@ -72,7 +64,7 @@ public class ComponentsExamples {
         }));
     }
 
-    private void waitWithDetails(TerminalPresenter presenter)  {
+    private void waitWithDetails(TerminalPresenter presenter) {
         var publisher = new SubmissionPublisher<String>();
         int maxCount = 50;
 

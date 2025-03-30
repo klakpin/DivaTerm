@@ -24,7 +24,7 @@ public class TerminalPrompt implements Prompt {
     @Override
     public String prompt(String text, String defaultValue) {
         var result = doPrompt(text, defaultValue);
-        terminal.printDebugInfo("default prompt raw res", List.of(String.format("raw result: '%s'", result)), 1);
+//        terminal.printDebugInfo("default prompt raw res", List.of(String.format("raw result: '%s'", result)), 1);
         if (result.isEmpty()) {
             return defaultValue;
         } else {

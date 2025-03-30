@@ -22,13 +22,14 @@ public class TerminalMessage implements Message {
     @Override
     public void printMessage(String message) {
         terminal.writer().println(message);
+        terminal.flush();
     }
 
     @Override
     public void printMessage(String message, ColorPalette.ColorFeature... colorFeature) {
         terminal.writer().println(colorPalette.apply(message, colorFeature));
+        terminal.flush();
     }
-
 
     @Override
     public void printInBracket(String message) {

@@ -55,12 +55,12 @@ public class TerminalWrapper implements Closeable, Flushable {
 
     public void printlnFull(String line, int offset) {
         var toFill = terminal.getWidth() - line.length();
-        terminal.writer().println(line + " ".repeat(toFill - offset));
+        terminal.writer().println(line + " ".repeat(Math.max(toFill - offset, 0)));
     }
 
     public void printFull(String line, int offset) {
         var toFill = terminal.getWidth() - line.length();
-        terminal.writer().print(line + " ".repeat(toFill - offset));
+        terminal.writer().print(line + " ".repeat(Math.max(toFill - offset, 0)));
     }
 
     public void printlnFull(String line) {
@@ -90,7 +90,7 @@ public class TerminalWrapper implements Closeable, Flushable {
                 var a = reader.read(1);
                 var b = reader.read(2);
 
-                printPollInfo(true, initial, initial, a, b);
+//                printPollInfo(true, initial, initial, a, b);
                 if (a == 91 && b == 65) {
                     return ARROW_UP;
                 } else if (a == 91 && b == 66) {
@@ -100,7 +100,7 @@ public class TerminalWrapper implements Closeable, Flushable {
                 return UNKNOWN_CONTROL;
             }
             if (initial != -2) {
-                printPollInfo(false, initial, 0, 0, 0);
+//                printPollInfo(false, initial, 0, 0, 0);
             }
             return initial;
         } catch (IOException e) {

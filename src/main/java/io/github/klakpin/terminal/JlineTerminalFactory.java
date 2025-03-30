@@ -16,7 +16,7 @@ public class JlineTerminalFactory {
         Signal.handle(new Signal("INT"), sig -> {
             System.out.println("\nExecution aborted");
             terminal.puts(InfoCmp.Capability.cursor_visible);
-            terminal.flush(); // Ensure cursor is restored
+            terminal.flush(); // Ensure the cursor is restored
             try {
                 terminal.close(); // Cleanup
             } catch (IOException e) {
