@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'io.github.klakpin'
-version = '0.0.2-SNAPSHOT'
+version = '0.0.3-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -34,7 +34,6 @@ test {
 
 publishing {
     repositories {
-        mavenLocal()
         maven {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/klakpin/DivaTerm")

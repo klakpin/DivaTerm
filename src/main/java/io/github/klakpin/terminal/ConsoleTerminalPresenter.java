@@ -50,8 +50,8 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
     }
 
     @Override
-    public void waitWhileWithDetails(String message, SubmissionPublisher<String> details, CompletableFuture<Void> waitWhile, int maxLines) {
-        componentsFactory.buildWaitComponent().waitWhileWithDetails(message, details, waitWhile, maxLines);
+    public void waitWhileWithDetails(String message, SubmissionPublisher<String> details, int maxLines) {
+        componentsFactory.buildWaitComponent().waitWhileWithDetails(message, details, maxLines);
     }
 
     @Override

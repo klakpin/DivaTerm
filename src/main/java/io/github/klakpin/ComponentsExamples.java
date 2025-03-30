@@ -10,6 +10,7 @@ import org.jline.utils.InfoCmp;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.Stream;
@@ -24,8 +25,8 @@ public class ComponentsExamples {
         try {
 //            prompt(presenter);
 //            messages(presenter);
-            interactiveChoice(presenter);
-//            waitWithDetails(presenter);
+//            interactiveChoice(presenter);
+            waitWithDetails(presenter);
 //            waitWithoutDetails(presenter);
         } finally {
             terminal.puts(InfoCmp.Capability.cursor_visible);
@@ -57,7 +58,7 @@ public class ComponentsExamples {
     private void interactiveChoice(TerminalPresenter presenter) {
         var result = presenter.stringChoice("test question", List.of("first", "second", "third", "fourth", "fifth"));
 //        var result = presenter.stringMultiChoice("test question", List.of("first", "second", "third", "fourth", "fifth"), 3);
-        
+
         presenter.message(result.toString());
     }
 
@@ -71,12 +72,11 @@ public class ComponentsExamples {
         }));
     }
 
-    private void waitWithDetails(TerminalPresenter presenter) throws InterruptedException {
+    private void waitWithDetails(TerminalPresenter presenter)  {
         var publisher = new SubmissionPublisher<String>();
-
         int maxCount = 50;
 
-        presenter.waitWhileWithDetails("Counting up to " + maxCount, publisher, CompletableFuture.runAsync(() -> {
+        CompletableFuture.runAsync(() -> {
             int counter = 0;
             try {
                 while (counter < maxCount) {
@@ -86,9 +86,11 @@ public class ComponentsExamples {
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
+            } finally {
+                publisher.close();
             }
-        }), 10);
+        });
 
-        publisher.close();
+        presenter.waitWhileWithDetails("Counting up to " + maxCount, publisher, 10);
     }
 }

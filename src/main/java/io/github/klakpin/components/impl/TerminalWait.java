@@ -11,6 +11,7 @@ import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp;
 
 import java.util.concurrent.*;
+import java.util.function.Consumer;
 
 import static io.github.klakpin.theme.ColorPalette.ColorFeature.*;
 
@@ -77,7 +78,7 @@ public class TerminalWait implements Wait {
     }
 
     @Override
-    public void waitWhileWithDetails(String message, SubmissionPublisher<String> details, CompletableFuture<Void> waitWhile, int maxLines) {
+    public void waitWhileWithDetails(String message, SubmissionPublisher<String> details, int maxLines) {
         cleaner.forwardCleanup(maxLines);
 
         initialPosition = terminal.getCursorPosition(new NoopIntConsumer());
@@ -88,43 +89,60 @@ public class TerminalWait implements Wait {
             detailsBuffer.add("");
         }
 
-        var consumer = details.consume(s -> detailsBuffer.add(s));
-
         try {
-            var task = drawingExecutor.scheduleAtFixedRate(() -> updateAnimation(message),
+            var drawingTask = drawingExecutor.scheduleAtFixedRate(() -> updateAnimation(message),
                     25 /* small initial delay for forward cleanup to be rendered */,
                     85,
                     TimeUnit.MILLISECONDS
             );
 
-            waitWhile.whenComplete((unused, throwable) -> task.cancel(true));
+            var waitingSemaphore = new Semaphore(1);
+            waitingSemaphore.acquire();
 
-            waitWhile.get();
-        } catch (ExecutionException | InterruptedException e) {
+            var subscriber = new BufferFillingSubscriber(detailsBuffer, throwable -> {
+                drawingTask.cancel(true);
+                waitingSemaphore.release();
+            });
+            details.subscribe(subscriber);
+            waitingSemaphore.acquire();
+
+        } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            consumer.cancel(true);
             cleaner.cleanLines(maxLines, initialPosition);
             new TerminalWrapper(terminal).setCursorPosition(initialPosition.getY(), initialPosition.getX());
         }
     }
+
+
+    /**
+     * Subscriber that is used solely to track completion of a given flow.
+     */
+    static final class BufferFillingSubscriber implements Flow.Subscriber<String> {
+
+        private final Consumer<Throwable> completionConsumer;
+        private final CircularFifoQueue<String> detailsBuffer;
+
+        BufferFillingSubscriber(CircularFifoQueue<String> detailsBuffer,
+                                Consumer<Throwable> completionConsumer) {
+            this.detailsBuffer = detailsBuffer;
+            this.completionConsumer = completionConsumer;
+        }
+
+        public void onSubscribe(Flow.Subscription subscription) {
+            subscription.request(Long.MAX_VALUE);
+        }
+
+        public void onError(Throwable ex) {
+            completionConsumer.accept(ex);
+        }
+
+        public void onComplete() {
+            completionConsumer.accept(null);
+        }
+
+        public void onNext(String item) {
+            detailsBuffer.add(item);
+        }
+    }
 }
-
-
-//        NonBlockingReader reader = terminal.reader();
-//
-//        System.out.println("Hello, waiting 5 seconds (press Ctrl+C to exit)...");
-//
-//        long endTime = System.currentTimeMillis() + 5000;
-//        while (System.currentTimeMillis() < endTime) {
-//            // Read any input (with timeout) to prevent it from appearing later
-//            int read = reader.read(100); // 100ms timeout
-//            terminal.writer().println(read);
-//            terminal.writer().flush();
-//            terminal.puts(InfoCmp.Capability.cursor_up);
-//            terminal.flush();
-//            if (read != NonBlockingReader.READ_EXPIRED) {
-//                // Just consume the input without processing
-//                continue;
-//            }
-//        }
