@@ -65,8 +65,8 @@ Awaken your terminal’s power:
 
 This project thrives on **elegant code and sharp fangs** (bug reports).
 
-- Fork → `git clone` → Cast your spell (code).
-- Submit a PR → We’ll toast with a glass of... *red wine*.
+- Fork → `git clone` → Put your magic (code).
+- Submit a PR
 
 ---
 
