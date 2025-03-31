@@ -50,7 +50,7 @@ public class TerminalComponentFactory implements ComponentsFactory {
 
     @Override
     public Prompt buildPrompt() {
-        return new TerminalPrompt(terminal);
+        return new TerminalPrompt(terminal, colorPalette);
     }
 
     @Override

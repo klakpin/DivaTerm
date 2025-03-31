@@ -2,17 +2,21 @@ package io.github.klakpin.components.impl;
 
 import io.github.klakpin.terminal.TerminalWrapper;
 import io.github.klakpin.components.api.Prompt;
+import io.github.klakpin.theme.ColorPalette;
 import org.jline.terminal.Terminal;
 import org.jline.utils.NonBlockingReader;
 
-import java.util.List;
+import static io.github.klakpin.theme.ColorPalette.ColorFeature.bold;
+import static io.github.klakpin.theme.ColorPalette.ColorFeature.success;
 
 public class TerminalPrompt implements Prompt {
 
     private final TerminalWrapper terminal;
+    private final ColorPalette colorPalette;
 
-    public TerminalPrompt(Terminal terminal) {
+    public TerminalPrompt(Terminal terminal, ColorPalette colorPalette) {
         this.terminal = new TerminalWrapper(terminal);
+        this.colorPalette = colorPalette;
     }
 
     @Override
@@ -53,9 +57,9 @@ public class TerminalPrompt implements Prompt {
 
         String prefix;
         if (defaultValueHint.isEmpty()) {
-            prefix = "\r" + text + ": ";
+            prefix = "\r" + colorPalette.apply("? ", bold) + text + ": ";
         } else {
-            prefix = "\r" + text + " (" + defaultValueHint + "): ";
+            prefix = "\r" + colorPalette.apply("? ", bold) + text + " (" + defaultValueHint + "): ";
         }
 
         var needRedraw = true;
@@ -83,7 +87,7 @@ public class TerminalPrompt implements Prompt {
             }
         }
 
-        terminal.writer().println();
+        terminal.writer().println("\r" + colorPalette.apply("✔ ", bold, success));
         return removeNulls(inputBuffer);
     }
 
