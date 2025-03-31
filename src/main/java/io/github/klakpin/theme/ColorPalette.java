@@ -12,6 +12,10 @@ public interface ColorPalette {
 
         bold,
         call_to_action,
+
+        active_background,
+        inactive_background,
+
         secondary_info,
         secondary_info_bracket,
         error_bracket,

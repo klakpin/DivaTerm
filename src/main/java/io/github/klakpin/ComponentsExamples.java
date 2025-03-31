@@ -17,14 +17,18 @@ import java.util.stream.Stream;
 
 public class ComponentsExamples {
     void runExamples() throws IOException, InterruptedException {
-        demo1();
-//        try (var presenter = ConsoleTerminalPresenter.standard()) {
-////            prompt(presenter);
-//            messages(presenter);
+        try (var presenter = ConsoleTerminalPresenter.standard()) {
+            messages(presenter);
+            confirm(presenter);
+//            prompt(presenter);
 //            interactiveChoice(presenter);
 //            waitWithDetails(presenter);
 //            waitWithoutDetails(presenter);
-//        }
+        }
+    }
+
+    private void confirm(TerminalPresenter presenter) {
+        presenter.message(presenter.confirm().toString());
     }
 
     private void prompt(TerminalPresenter presenter) {

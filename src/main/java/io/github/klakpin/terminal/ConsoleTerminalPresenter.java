@@ -143,6 +143,10 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
                 .getMulti();
     }
 
+    @Override
+    public Boolean confirm() {
+        return componentsFactory.buildConfirm().confirm();
+    }
 
     @Override
     public void close() {

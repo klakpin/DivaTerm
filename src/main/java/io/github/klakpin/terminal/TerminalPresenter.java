@@ -35,4 +35,6 @@ public interface TerminalPresenter extends AutoCloseable {
     List<String> stringMultiChoice(String question, List<String> options, int limit);
 
     List<ChoiceOption> stringMultiChoiceRaw(Function<Choice.ChoiceBuilder, Choice.ChoiceBuilder> builder);
+
+    Boolean confirm();
 }

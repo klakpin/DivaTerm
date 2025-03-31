@@ -20,7 +20,6 @@ public class TerminalPrompt implements Prompt {
         return doPrompt(text);
     }
 
-
     @Override
     public String prompt(String text, String defaultValue) {
         var result = doPrompt(text, defaultValue);

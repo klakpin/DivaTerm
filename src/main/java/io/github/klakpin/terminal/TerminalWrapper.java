@@ -12,6 +12,8 @@ public class TerminalWrapper implements Closeable, Flushable {
 
     public final static int ARROW_UP = -228;
     public final static int ARROW_DOWN = -1337;
+    public final static int ARROW_LEFT = -666;
+    public final static int ARROW_RIGHT = -69;
     public final static int SPACE = 32;
     public final static int TAB = 9;
     public final static int BACKSPACE = 127;
@@ -95,6 +97,10 @@ public class TerminalWrapper implements Closeable, Flushable {
                     return ARROW_UP;
                 } else if (a == 91 && b == 66) {
                     return ARROW_DOWN;
+                } else if (a == 91 && b == 67) {
+                    return ARROW_RIGHT;
+                } else if (a == 91 && b == 68) {
+                    return ARROW_LEFT;
                 }
 
                 return UNKNOWN_CONTROL;

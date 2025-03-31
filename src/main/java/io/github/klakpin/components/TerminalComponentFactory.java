@@ -1,10 +1,12 @@
 package io.github.klakpin.components;
 
+import io.github.klakpin.components.api.Confirm;
 import io.github.klakpin.components.api.choice.Choice;
 import io.github.klakpin.components.api.Message;
 import io.github.klakpin.components.api.Prompt;
 import io.github.klakpin.components.api.Wait;
 import io.github.klakpin.components.helper.TerminalCleaner;
+import io.github.klakpin.components.impl.TerminalConfirm;
 import io.github.klakpin.components.impl.TerminalMessage;
 import io.github.klakpin.components.impl.TerminalPrompt;
 import io.github.klakpin.components.impl.choice.TerminalChoice;
@@ -49,6 +51,11 @@ public class TerminalComponentFactory implements ComponentsFactory {
     @Override
     public Prompt buildPrompt() {
         return new TerminalPrompt(terminal);
+    }
+
+    @Override
+    public Confirm buildConfirm() {
+        return new TerminalConfirm(terminal, colorPalette);
     }
 
     private TerminalCleaner cleaner() {

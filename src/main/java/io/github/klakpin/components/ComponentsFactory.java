@@ -1,5 +1,6 @@
 package io.github.klakpin.components;
 
+import io.github.klakpin.components.api.Confirm;
 import io.github.klakpin.components.api.choice.Choice;
 import io.github.klakpin.components.api.Message;
 import io.github.klakpin.components.api.Prompt;
@@ -13,4 +14,6 @@ public interface ComponentsFactory extends AutoCloseable {
     Message buildMessageComponent();
 
     Prompt buildPrompt();
+
+    Confirm buildConfirm();
 }
