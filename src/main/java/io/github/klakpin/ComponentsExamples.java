@@ -20,10 +20,10 @@ public class ComponentsExamples {
         try (var presenter = ConsoleTerminalPresenter.standard()) {
             messages(presenter);
             confirm(presenter);
-//            prompt(presenter);
-//            interactiveChoice(presenter);
-//            waitWithDetails(presenter);
-//            waitWithoutDetails(presenter);
+            prompt(presenter);
+            interactiveChoice(presenter);
+            waitWithDetails(presenter);
+            waitWithoutDetails(presenter);
         }
     }
 
@@ -38,8 +38,8 @@ public class ComponentsExamples {
         var inputWithDefaultValue = presenter.promptWithDefault("Some question with default value", "default");
         presenter.message(inputWithDefaultValue);
 
-        var inputBoolean = presenter.promptBoolean("Question with boolean result");
-        presenter.message(inputBoolean.toString());
+//        var inputBoolean = presenter.promptBoolean("Question with boolean result");
+//        presenter.message(inputBoolean.toString());
     }
 
     private void demo1() {
@@ -81,6 +81,7 @@ public class ComponentsExamples {
                 throw new RuntimeException(e);
             }
         }));
+        presenter.message("Waited 5 seconds");
     }
 
     private void waitWithDetails(TerminalPresenter presenter) {
@@ -103,5 +104,6 @@ public class ComponentsExamples {
         });
 
         presenter.waitWhileWithDetails("Counting up to " + maxCount, publisher, 10);
+        presenter.message("Counted to " + maxCount);
     }
 }

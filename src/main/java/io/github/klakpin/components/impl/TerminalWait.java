@@ -20,7 +20,7 @@ import static io.github.klakpin.theme.ColorPalette.ColorFeature.*;
 
 public class TerminalWait implements Wait {
 
-    private final Terminal terminal;
+    private final TerminalWrapper terminal;
     private final ScheduledExecutorService drawingExecutor;
     private final ColorPalette colorPalette;
     private final TerminalCleaner cleaner;
@@ -35,7 +35,7 @@ public class TerminalWait implements Wait {
                         ScheduledExecutorService drawingExecutor,
                         ColorPalette colorPalette,
                         TerminalCleaner cleaner) {
-        this.terminal = terminal;
+        this.terminal = new TerminalWrapper(terminal);
         this.drawingExecutor = drawingExecutor;
         this.colorPalette = colorPalette;
         this.cleaner = cleaner;
@@ -44,9 +44,6 @@ public class TerminalWait implements Wait {
     @Override
     public void waitWhile(String message, CompletableFuture<Void> waitWhile) {
         detailsBuffer = null;
-
-        terminal.writer().write("\n");
-        terminal.flush();
 
         initialPosition = terminal.getCursorPosition(new NoopIntConsumer());
 
@@ -58,6 +55,9 @@ public class TerminalWait implements Wait {
             waitWhile.get();
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
+        } finally {
+            cleaner.cleanLines(1, initialPosition);
+            terminal.setCursorPosition(initialPosition.getY(), 0);
         }
     }
 
@@ -112,7 +112,7 @@ public class TerminalWait implements Wait {
         } finally {
             // +1 for the line with a spinner
             cleaner.cleanLines(maxLines + 1, initialPosition);
-            new TerminalWrapper(terminal).setCursorPosition(initialPosition.getY(), initialPosition.getX());
+            terminal.setCursorPosition(initialPosition.getY() - 1, initialPosition.getX());
         }
     }
 

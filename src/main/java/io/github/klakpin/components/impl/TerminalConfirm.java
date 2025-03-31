@@ -79,7 +79,7 @@ public class TerminalConfirm implements Confirm {
     }
 
     private void cleanup() {
-        terminal.cleanLines(HEADER_OFFSET + 1, initialPosition);
+        terminal.cleanLines(HEADER_OFFSET + 2, initialPosition);
         terminal.puts(cursor_address, initialPosition.getY(), 0);
         terminal.flush();
     }
