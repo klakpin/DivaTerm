@@ -17,13 +17,14 @@ import java.util.stream.Stream;
 
 public class ComponentsExamples {
     void runExamples() throws IOException, InterruptedException {
-        try (var presenter = ConsoleTerminalPresenter.standard()) {
-//            prompt(presenter);
-            messages(presenter);
-            interactiveChoice(presenter);
-            waitWithDetails(presenter);
-            waitWithoutDetails(presenter);
-        }
+        demo1();
+//        try (var presenter = ConsoleTerminalPresenter.standard()) {
+////            prompt(presenter);
+//            messages(presenter);
+//            interactiveChoice(presenter);
+//            waitWithDetails(presenter);
+//            waitWithoutDetails(presenter);
+//        }
     }
 
     private void prompt(TerminalPresenter presenter) {
@@ -35,6 +36,20 @@ public class ComponentsExamples {
 
         var inputBoolean = presenter.promptBoolean("Question with boolean result");
         presenter.message(inputBoolean.toString());
+    }
+
+    private void demo1() {
+        try (var presenter = ConsoleTerminalPresenter.standard()) {
+            presenter.message("Welcome to app");
+
+            var singleResult = presenter.stringChoice("What action you want to perform?",
+                    List.of("first", "second", "third", "fourth", "fifth"));
+
+            var confirmation = presenter.promptBoolean("Are you sure?");
+
+            presenter.successMessage("Successfully executed " + singleResult);
+
+        }
     }
 
     private void messages(TerminalPresenter presenter) {

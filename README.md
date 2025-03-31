@@ -19,9 +19,14 @@
 - **Ready to use** – Jump in straight to terminal components.
 
 ```java
-/* init terminal presenter above*/
-var presenter = new ConsoleTerminalPresenter(componentsFactory);
-//
+try (var presenter = ConsoleTerminalPresenter.standard()) {
+    presenter.message("Welcome to app");
+    
+    var singleResult = presenter.stringChoice("What action you want to perform?",
+        List.of("first", "second", "third", "fourth", "fifth"));
+    
+    var confirmation = presenter.promptBoolean("Are you sure?");
+}
 ```
 
 ---
