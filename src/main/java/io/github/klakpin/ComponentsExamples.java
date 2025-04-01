@@ -1,6 +1,7 @@
 package io.github.klakpin;
 
 import io.github.klakpin.components.TerminalComponentFactory;
+import io.github.klakpin.components.api.choice.ChoiceOption;
 import io.github.klakpin.terminal.ConsoleTerminalPresenter;
 import io.github.klakpin.terminal.JlineTerminalFactory;
 import io.github.klakpin.terminal.TerminalPresenter;
@@ -8,7 +9,9 @@ import io.github.klakpin.theme.TerminalColorPalette;
 import org.jline.utils.InfoCmp;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -20,8 +23,8 @@ public class ComponentsExamples {
         try (var presenter = ConsoleTerminalPresenter.standard()) {
             messages(presenter);
             prompt(presenter);
-            confirm(presenter);
             interactiveChoice(presenter);
+            confirm(presenter);
             waitWithDetails(presenter);
             waitWithoutDetails(presenter);
         }
@@ -37,23 +40,6 @@ public class ComponentsExamples {
 
         var inputWithDefaultValue = presenter.promptWithDefault("Some question with default value", "default");
         presenter.message(inputWithDefaultValue);
-
-//        var inputBoolean = presenter.promptBoolean("Question with boolean result");
-//        presenter.message(inputBoolean.toString());
-    }
-
-    private void demo1() {
-        try (var presenter = ConsoleTerminalPresenter.standard()) {
-            presenter.message("Welcome to app");
-
-            var singleResult = presenter.stringChoice("What action you want to perform?",
-                    List.of("first", "second", "third", "fourth", "fifth"));
-
-            var confirmation = presenter.promptBoolean("Are you sure?");
-
-            presenter.successMessage("Successfully executed " + singleResult);
-
-        }
     }
 
     private void messages(TerminalPresenter presenter) {
@@ -65,12 +51,23 @@ public class ComponentsExamples {
     }
 
     private void interactiveChoice(TerminalPresenter presenter) {
-        var singleResult = presenter.stringChoice("test question", List.of("first", "second", "third", "fourth", "fifth"));
-        presenter.message(singleResult);
+//        var lotOfOptions = new ArrayList<ChoiceOption>();
+//
+//        for (int i = 0; i < 100; i++) {
+//            lotOfOptions.add(new ChoiceOption(i, UUID.randomUUID().toString()));
+//        }
+//
+//        var filteredResult = presenter.choice(cb ->
+//                cb.withQuestion("What UUID you like the most?")
+//                        .withOptions(lotOfOptions)
+//                        .withMaxDisplayResults(5)
+//                        .withFilteringEnabled(true)
+//                        .withFilterSimilarityCutoff(0.8)
+//        );
 
-        var multiResult = presenter.stringMultiChoice("test question", List.of("first", "second", "third", "fourth", "fifth"), 3);
-        presenter.message(multiResult.toString());
-
+//        presenter.message(filteredResult.displayText());
+        presenter.stringChoice("test question", List.of("first", "second", "third", "fourth", "fifth"));
+        presenter.stringMultiChoice("test question", List.of("first", "second", "third", "fourth", "fifth"), 3);
     }
 
     private void waitWithoutDetails(TerminalPresenter presenter) {

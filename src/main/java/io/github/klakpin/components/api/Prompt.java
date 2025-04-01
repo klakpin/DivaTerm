@@ -6,6 +6,4 @@ public interface Prompt {
     String prompt(String text);
 
     String prompt(String text, String defaultValue);
-
-    Boolean promptBoolean(String text);
 }

@@ -43,7 +43,9 @@ public class TerminalColorPalette implements ColorPalette {
 
         colors.put(ColorFeature.bold, "\u001B[1m");
 
+
         colors.put(ColorFeature.call_to_action, "\u001B[38;5;51m");
+        colors.put(ColorFeature.active_text, "\u001B[38;5;51m");
 
         colors.put(ColorFeature.active_background, "\u001B[48;2;119;119;221m");
 //        colors.put(ColorFeature.active_background, "\u001B[48;5;213m");

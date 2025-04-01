@@ -13,6 +13,9 @@ public interface ColorPalette {
         bold,
         call_to_action,
 
+
+        active_text,
+
         active_background,
         inactive_background,
 

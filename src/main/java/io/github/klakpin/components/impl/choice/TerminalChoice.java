@@ -1,8 +1,10 @@
 package io.github.klakpin.components.impl.choice;
 
 import io.github.klakpin.components.api.choice.*;
+import io.github.klakpin.components.api.choice.comparator.FuzzyDisplayTextComparator;
 import io.github.klakpin.terminal.NoopIntConsumer;
 import io.github.klakpin.terminal.TerminalWrapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import io.github.klakpin.theme.ColorPalette;
 import org.jline.terminal.Cursor;
@@ -29,6 +31,7 @@ public class TerminalChoice implements Choice {
 
     private final boolean multiSelect;
     private final boolean filteringEnabled;
+    private final boolean dontShowSelected;
 
     private final Double filteringSimilarityCutoff;
 
@@ -45,7 +48,18 @@ public class TerminalChoice implements Choice {
 
     List<ChoiceOption> visibleOptions = new ArrayList<>();
 
-    public TerminalChoice(TerminalWrapper terminal, ColorPalette colorPalette, String question, int maxDisplayResults, int maxSelectResults, boolean multiSelect, boolean filteringEnabled, Double filteringSimilarityCutoff, List<ChoiceOption> options, OptionsProvider provider, OptionsComparator optionsComparator) {
+    public TerminalChoice(TerminalWrapper terminal,
+                          ColorPalette colorPalette,
+                          String question,
+                          int maxDisplayResults,
+                          int maxSelectResults,
+                          boolean multiSelect,
+                          boolean filteringEnabled,
+                          Double filteringSimilarityCutoff,
+                          List<ChoiceOption> options,
+                          OptionsProvider provider,
+                          OptionsComparator optionsComparator,
+                          boolean dontShowSelected) {
         this.terminal = terminal;
         this.colorPalette = colorPalette;
         this.question = question;
@@ -55,7 +69,8 @@ public class TerminalChoice implements Choice {
         this.filteringSimilarityCutoff = filteringSimilarityCutoff;
         this.options = options;
         optionsProvider = provider;
-        this.optionsComparator = optionsComparator;
+
+        this.optionsComparator = Objects.requireNonNullElseGet(optionsComparator, FuzzyDisplayTextComparator::new);
 
         if (optionsProvider == null) {
             // The count of elements is known beforehand
@@ -63,37 +78,49 @@ public class TerminalChoice implements Choice {
         } else {
             this.maxDisplayResults = maxDisplayResults;
         }
-
+        this.dontShowSelected = dontShowSelected;
     }
 
 
     @Override
     public ChoiceOption get() {
         doGet();
+        if (!dontShowSelected) {
+            printSelected(List.of(visibleOptions.get(activeElementIndex)));
+        }
         return visibleOptions.get(activeElementIndex);
+        // TODO fix case when all elements are filtered out
+
     }
 
     @Override
     public List<ChoiceOption> getMulti() {
-        return doGet();
+        doGet();
+        if (!dontShowSelected) {
+            printSelected(visibleOptions.stream()
+                    .filter(vo -> selectedIds.contains(vo.id()))
+                    .toList());
+        }
+        return visibleOptions.stream()
+                .filter(vo -> selectedIds.contains(vo.id()))
+                .toList();
     }
 
-    private List<ChoiceOption> doGet() {
+    private void doGet() {
         terminal.forwardCleanup(maxDisplayResults + HEADER_OFFSET + FOOTER_OFFSET);
         var currentPosition = terminal.getCursorPosition(new NoopIntConsumer());
         initialPosition = new Cursor(currentPosition.getX(), currentPosition.getY() - maxDisplayResults - HEADER_OFFSET - FOOTER_OFFSET);
 
-        var result = interactiveChoiceLoop();
+        interactiveChoiceLoop();
 
         terminal.setCursorPosition(initialPosition.getY(), 0);
         terminal.forwardCleanup(maxDisplayResults + HEADER_OFFSET + FOOTER_OFFSET);
 
         terminal.setCursorPosition(initialPosition.getY(), 0);
         terminal.flush();
-        return result;
     }
 
-    private List<ChoiceOption> interactiveChoiceLoop() {
+    private void interactiveChoiceLoop() {
         NonBlockingReader reader = terminal.reader();
 
         boolean needRedraw = true;
@@ -117,10 +144,16 @@ public class TerminalChoice implements Choice {
                 needRedraw = true;
             }
         }
+    }
 
-        return visibleOptions.stream()
-                .filter(vo -> selectedIds.contains(vo.id()))
-                .toList();
+    private void printSelected(List<ChoiceOption> result) {
+        terminal.setCursorPosition(initialPosition.getY(), 0);
+        terminal.writer().print(colorPalette.apply("✔ ", bold, success));
+        terminal.writer().print(question + ": ");
+
+        var resultStr = StringUtils.join(result.stream().map(ChoiceOption::displayText).toList(), ", ");
+        terminal.writer().println(colorPalette.apply(resultStr, bold));
+        terminal.flush();
     }
 
     private List<ChoiceOption> getVisibleOptions() {
@@ -129,7 +162,7 @@ public class TerminalChoice implements Choice {
         }
 
         if (!filteringEnabled) {
-            return options;
+            return options.stream().limit(maxDisplayResults).toList();
         } else if (options != null) {
             return filterAndSortOptions(options);
         } else if (optionsProvider != null) {
@@ -145,7 +178,7 @@ public class TerminalChoice implements Choice {
         var result = options.stream()
                 .map(option -> Pair.of(option, optionsComparator.getSimilarity(filter.toString(), option)))
                 .peek(value -> debugLines.add(String.format("'%s' = '%s'", value.getKey().displayText(), value.getValue())))
-                .filter(value -> value.getRight() >= filteringSimilarityCutoff)
+                .filter(value -> filter.isEmpty() || (value.getRight() >= filteringSimilarityCutoff))
                 .sorted(Comparator.comparingDouble(Pair::getRight))
                 .toList()
                 .reversed()
@@ -170,7 +203,7 @@ public class TerminalChoice implements Choice {
         }
 
 
-        for (int i = 1; i < maxDisplayResults - visibleOptions.size(); i++) {
+        for (int i = 0; i < maxDisplayResults - visibleOptions.size(); i++) {
             terminal.emptyLine();
         }
 
@@ -189,16 +222,16 @@ public class TerminalChoice implements Choice {
 
     private String activeChoice(String choice) {
         if (multiSelect && selectedIds.contains(visibleOptions.get(activeElementIndex).id())) {
-            return colorPalette.apply("> ✓ " + choice, call_to_action);
+            return colorPalette.apply("> ✓ " + choice, active_text, bold);
         } else if (multiSelect && !selectedIds.contains(visibleOptions.get(activeElementIndex).id())) {
-            return colorPalette.apply("> • " + choice, call_to_action);
+            return colorPalette.apply("> • " + choice, active_text, bold);
         } else {
-            return colorPalette.apply("> " + choice, call_to_action);
+            return colorPalette.apply("> " + choice, active_text, bold);
         }
     }
 
     private String selectedChoice(String choice) {
-        return colorPalette.apply("  ✓ " + choice, call_to_action);
+        return colorPalette.apply("  ✓ " + choice, active_text);
     }
 
     private String inactiveChoice(String choice) {
@@ -213,18 +246,18 @@ public class TerminalChoice implements Choice {
         var result = new StringBuilder();
         String howtoString;
         if (multiSelect) {
-            howtoString = colorPalette.apply(" [Use Tab to select, arrows to move, type to filter]:", call_to_action);
+            howtoString = colorPalette.apply(" [Use Tab to select, arrows to move, type to filter]:", secondary_info);
         } else {
-            howtoString = colorPalette.apply(" [Use arrows to move, type to filter]:", call_to_action);
+            howtoString = colorPalette.apply(" [Use arrows to move, type to filter]:", secondary_info);
         }
         if (maxDisplayResults < options.size()) {
-            result.append(colorPalette.apply("Showing incomplete list of options, narrow list using a filter", secondary_info));
+            result.append(colorPalette.apply(String.format("Showing incomplete (%s of %s) options, narrow list using a filter", maxDisplayResults, options.size()), secondary_info));
         }
 
         result.append("\n")
                 .append(colorPalette.apply("?", bold, info))
                 .append(" ")
-                .append(question)
+                .append(colorPalette.apply(question))
                 .append(howtoString)
                 .append(" ")
                 .append(filter);

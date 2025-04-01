@@ -28,13 +28,15 @@ public interface TerminalPresenter extends AutoCloseable {
 
     String promptWithDefault(String question, String defaultValue);
 
-    Boolean promptBoolean(String question);
-
     String stringChoice(String question, List<String> options);
 
     List<String> stringMultiChoice(String question, List<String> options, int limit);
 
-    List<ChoiceOption> stringMultiChoiceRaw(Function<Choice.ChoiceBuilder, Choice.ChoiceBuilder> builder);
+    ChoiceOption choice(Function<Choice.ChoiceBuilder, Choice.ChoiceBuilder> builder);
+
+    List<ChoiceOption> multiChoice(Function<Choice.ChoiceBuilder, Choice.ChoiceBuilder> builder);
 
     Boolean confirm();
+
+    Boolean confirm(String confirmationText);
 }

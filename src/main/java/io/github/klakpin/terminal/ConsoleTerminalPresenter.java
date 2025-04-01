@@ -7,6 +7,7 @@ import io.github.klakpin.components.api.choice.ChoiceOption;
 import io.github.klakpin.components.api.choice.comparator.FuzzyDisplayTextComparator;
 import io.github.klakpin.theme.TerminalColorPalette;
 import org.jline.terminal.Terminal;
+import org.jline.utils.InfoCmp;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import java.util.concurrent.SubmissionPublisher;
 import java.util.function.Function;
 
 import static io.github.klakpin.theme.ColorPalette.ColorFeature.*;
+import static org.jline.utils.InfoCmp.Capability.*;
 
 public class ConsoleTerminalPresenter implements TerminalPresenter {
 
@@ -86,11 +88,6 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
     }
 
     @Override
-    public Boolean promptBoolean(String question) {
-        return componentsFactory.buildPrompt().promptBoolean(question);
-    }
-
-    @Override
     public String stringChoice(String question, List<String> options) {
         var optionsMap = new HashMap<Integer, ChoiceOption>();
         for (int i = 0; i < options.size(); i++) {
@@ -131,9 +128,19 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
                 .toList();
     }
 
+    @Override
+    public ChoiceOption choice(Function<ChoiceBuilder, ChoiceBuilder> builder) {
+        var rawBuilder = componentsFactory
+                .choiceBuilder()
+                .withMultiSelect(false);
+
+        return builder.apply(rawBuilder)
+                .build()
+                .get();
+    }
 
     @Override
-    public List<ChoiceOption> stringMultiChoiceRaw(Function<ChoiceBuilder, ChoiceBuilder> builder) {
+    public List<ChoiceOption> multiChoice(Function<ChoiceBuilder, ChoiceBuilder> builder) {
         var rawBuilder = componentsFactory
                 .choiceBuilder()
                 .withMultiSelect(true);
@@ -146,6 +153,11 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
     @Override
     public Boolean confirm() {
         return componentsFactory.buildConfirm().confirm();
+    }
+
+    @Override
+    public Boolean confirm(String confirmationText) {
+        return componentsFactory.buildConfirm().confirm(confirmationText);
     }
 
     @Override

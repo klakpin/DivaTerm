@@ -21,31 +21,25 @@ public class TerminalPrompt implements Prompt {
 
     @Override
     public String prompt(String text) {
-        return doPrompt(text);
+        return doGetPrompt(text, null);
     }
 
     @Override
     public String prompt(String text, String defaultValue) {
-        var result = doPrompt(text, defaultValue);
-//        terminal.printDebugInfo("default prompt raw res", List.of(String.format("raw result: '%s'", result)), 1);
-        if (result.isEmpty()) {
-            return defaultValue;
-        } else {
-            return result;
-        }
+        return doGetPrompt(text, defaultValue);
     }
 
-    @Override
-    public Boolean promptBoolean(String text) {
-        var result = doPrompt(text, "yes/no");
-
-        if (result.equalsIgnoreCase("yes")) {
-            return true;
-        } else if (result.equalsIgnoreCase("no") || result.equalsIgnoreCase("n")) {
-            return false;
+    private String doGetPrompt(String text, String defaultValue) {
+        String result;
+        if (defaultValue == null) {
+            result = doPrompt(text);
         } else {
-            return promptBoolean(text);
+            result = doPrompt(text, defaultValue);
         }
+
+        terminal.printlnFull("\r" + colorPalette.apply("✔ ", success, bold) + text + ": " + colorPalette.apply(result, bold));
+
+        return result;
     }
 
     private String doPrompt(String text) {
@@ -87,8 +81,12 @@ public class TerminalPrompt implements Prompt {
             }
         }
 
-        terminal.writer().println("\r" + colorPalette.apply("✔ ", bold, success));
-        return removeNulls(inputBuffer);
+        var result = removeNulls(inputBuffer);
+        if (result.isEmpty()) {
+            return defaultValueHint;
+        } else {
+            return result;
+        }
     }
 
 

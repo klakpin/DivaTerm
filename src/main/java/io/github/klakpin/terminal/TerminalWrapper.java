@@ -134,6 +134,9 @@ public class TerminalWrapper implements Closeable, Flushable {
         terminal.flush();
     }
 
+    public Terminal jlineTerminal() {
+        return terminal;
+    }
 
     private void printPollInfo(Boolean escapeChar, int lastInput, int esc1, int esc2, int esc3) {
         var debugLines = List.of(

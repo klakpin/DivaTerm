@@ -20,13 +20,15 @@ public class TerminalChoiceBuilder implements Choice.ChoiceBuilder {
     private int maxDisplayResults = 10;
     private int maxSelectResults = -1;
     private boolean multiSelect = false;
-    private boolean filteringEnabled = false;
+    private boolean filteringEnabled = true;
 
     private Double filteringSimilarityCutoff = 0.0;
     private List<ChoiceOption> options = null;
     private OptionsProvider optionsProvider = null;
 
     private OptionsComparator optionsComparator = null;
+
+    private boolean dontShowSelected = false;
 
 
     @Override
@@ -102,6 +104,7 @@ public class TerminalChoiceBuilder implements Choice.ChoiceBuilder {
         if (options == null && optionsProvider == null) {
             throw new IllegalStateException("One of 'options' or 'optionsProvider' should be set for Choice component, but none was set");
         }
+
         return new TerminalChoice(
                 terminalWrapper,
                 colorPalette,
@@ -113,7 +116,8 @@ public class TerminalChoiceBuilder implements Choice.ChoiceBuilder {
                 filteringSimilarityCutoff,
                 options,
                 optionsProvider,
-                optionsComparator
+                optionsComparator,
+                dontShowSelected
         );
     }
 }

@@ -25,6 +25,16 @@ public class JlineTerminalFactory {
             System.exit(0);
         });
 
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            terminal.puts(InfoCmp.Capability.cursor_visible);
+            terminal.flush();
+            try {
+                terminal.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }));
+
         terminal.enterRawMode();
         terminal.puts(InfoCmp.Capability.cursor_invisible);
         terminal.flush();
