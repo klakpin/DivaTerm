@@ -100,9 +100,19 @@ public class TerminalChoiceBuilder implements Choice.ChoiceBuilder {
     }
 
     @Override
+    public Choice.ChoiceBuilder withDontShowSelected(boolean dontShowSelected) {
+        this.dontShowSelected = dontShowSelected;
+        return this;
+    }
+
+    @Override
     public Choice build() {
         if (options == null && optionsProvider == null) {
             throw new IllegalStateException("One of 'options' or 'optionsProvider' should be set for Choice component, but none was set");
+        }
+
+        if (terminalWrapper.jlineTerminal().getType().equals("dumb")) {
+            throw new IllegalStateException("Interactive options are disabled for dumb terminal");
         }
 
         return new TerminalChoice(

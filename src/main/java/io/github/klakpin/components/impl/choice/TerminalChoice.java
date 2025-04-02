@@ -173,11 +173,8 @@ public class TerminalChoice implements Choice {
     }
 
     private List<ChoiceOption> filterAndSortOptions(List<ChoiceOption> options) {
-        var debugLines = new ArrayList<String>();
-
-        var result = options.stream()
+        return options.stream()
                 .map(option -> Pair.of(option, optionsComparator.getSimilarity(filter.toString(), option)))
-                .peek(value -> debugLines.add(String.format("'%s' = '%s'", value.getKey().displayText(), value.getValue())))
                 .filter(value -> filter.isEmpty() || (value.getRight() >= filteringSimilarityCutoff))
                 .sorted(Comparator.comparingDouble(Pair::getRight))
                 .toList()
@@ -186,9 +183,6 @@ public class TerminalChoice implements Choice {
                 .limit(maxDisplayResults)
                 .map(Pair::getKey)
                 .toList();
-
-//        terminal.printDebugInfo("coefficients", debugLines, 5);
-        return result;
     }
 
     private void drawChoice() {

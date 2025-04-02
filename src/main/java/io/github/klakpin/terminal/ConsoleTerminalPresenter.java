@@ -5,11 +5,12 @@ import io.github.klakpin.components.TerminalComponentFactory;
 import io.github.klakpin.components.api.choice.Choice.ChoiceBuilder;
 import io.github.klakpin.components.api.choice.ChoiceOption;
 import io.github.klakpin.components.api.choice.comparator.FuzzyDisplayTextComparator;
-import io.github.klakpin.theme.TerminalColorPalette;
+import io.github.klakpin.theme.DefaultTerminalColorPalette;
 import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -20,17 +21,18 @@ import java.util.concurrent.SubmissionPublisher;
 import java.util.function.Function;
 
 import static io.github.klakpin.theme.ColorPalette.ColorFeature.*;
-import static org.jline.utils.InfoCmp.Capability.*;
 
 public class ConsoleTerminalPresenter implements TerminalPresenter {
 
     private final ComponentsFactory componentsFactory;
 
     public static ConsoleTerminalPresenter standard() {
+
         try {
+            var terminal = new JlineTerminalFactory().buildTerminal();
             return new ConsoleTerminalPresenter.Builder()
-                    .withTerminal(new JlineTerminalFactory().buildTerminal())
-                    .withColorPalette(new TerminalColorPalette())
+                    .withTerminal(terminal)
+                    .withColorPalette(new DefaultTerminalColorPalette(Collections.emptyMap(), true))
                     .withDrawingExecutor(Executors.newSingleThreadScheduledExecutor())
                     .build();
         } catch (IOException e) {
@@ -172,7 +174,7 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
     static class Builder {
         private Terminal terminal;
         private ScheduledExecutorService drawingExecutor;
-        private TerminalColorPalette colorPalette;
+        private DefaultTerminalColorPalette colorPalette;
 
         public Builder withTerminal(Terminal terminal) {
             this.terminal = terminal;
@@ -185,7 +187,7 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
 
         }
 
-        public Builder withColorPalette(TerminalColorPalette colorPalette) {
+        public Builder withColorPalette(DefaultTerminalColorPalette colorPalette) {
             this.colorPalette = colorPalette;
             return this;
         }

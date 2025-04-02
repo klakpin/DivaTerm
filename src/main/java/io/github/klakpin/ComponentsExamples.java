@@ -1,22 +1,14 @@
 package io.github.klakpin;
 
-import io.github.klakpin.components.TerminalComponentFactory;
-import io.github.klakpin.components.api.choice.ChoiceOption;
 import io.github.klakpin.terminal.ConsoleTerminalPresenter;
 import io.github.klakpin.terminal.JlineTerminalFactory;
 import io.github.klakpin.terminal.TerminalPresenter;
-import io.github.klakpin.theme.TerminalColorPalette;
 import org.jline.utils.InfoCmp;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.SubmissionPublisher;
-import java.util.stream.Stream;
 
 public class ComponentsExamples {
     void runExamples() throws IOException, InterruptedException {

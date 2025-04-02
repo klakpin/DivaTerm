@@ -35,6 +35,8 @@ public interface Choice {
 
         ChoiceBuilder withOptionsComparator(OptionsComparator provider);
 
+        ChoiceBuilder withDontShowSelected(boolean dontShowSelected);
+
         Choice build();
     }
 }
