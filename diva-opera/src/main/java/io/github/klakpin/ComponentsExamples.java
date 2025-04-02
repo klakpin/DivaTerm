@@ -1,16 +1,24 @@
 package io.github.klakpin;
 
 import io.github.klakpin.terminal.ConsoleTerminalPresenter;
-import io.github.klakpin.terminal.JlineTerminalFactory;
 import io.github.klakpin.terminal.TerminalPresenter;
-import org.jline.utils.InfoCmp;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.SubmissionPublisher;
 
 public class ComponentsExamples {
+    void runDemo() {
+        try (var presenter = ConsoleTerminalPresenter.standard()) {
+            var choice = presenter.stringChoice("What action you want to perform?",
+                    List.of("first", "second", "third", "fourth", "fifth"));
+
+            presenter.confirm(choice + " - are you sure?");
+
+            presenter.successMessage("Action completed");
+        }
+    }
+
     void runExamples() {
         try (var presenter = ConsoleTerminalPresenter.standard()) {
             messages(presenter);

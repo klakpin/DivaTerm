@@ -29,6 +29,12 @@ try (var presenter = ConsoleTerminalPresenter.standard()) {
 }
 ```
 
+<p align="center">
+
+  <img src="https://i.imgur.com/cBQFvIi.gif" alt="DivaTerm in action" width="600"/>
+
+</p>
+
 ---
 
 ## 🏰 **Installation**
