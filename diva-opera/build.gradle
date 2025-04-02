@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+    id 'com.gradleup.shadow' version '8.3.6'
+}
+
+dependencies {
+    implementation(project(":diva-blood"))
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'io.github.klakpin.Main'
+    }
+}
+
+test {
+    useJUnitPlatform()
+}

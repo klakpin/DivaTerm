@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.SubmissionPublisher;
 
 public class ComponentsExamples {
-    void runExamples() throws IOException, InterruptedException {
+    void runExamples() {
         try (var presenter = ConsoleTerminalPresenter.standard()) {
             messages(presenter);
             prompt(presenter);

@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'maven-publish'
+}
+
+group = 'io.github.klakpin'
+version = '0.0.1-SNAPSHOT'
+
+dependencies {
+    api 'org.jline:jline:3.29.0'
+
+    implementation 'org.apache.commons:commons-collections4:4.4'
+    implementation 'org.apache.commons:commons-text:1.13.0'
+
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+
+test {
+    useJUnitPlatform()
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/klakpin/DivaTerm")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_PACKAGES_USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_PACKAGES_TOKEN")
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            from(components.java)
+        }
+    }
+}

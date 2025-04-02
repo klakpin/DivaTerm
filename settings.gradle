@@ -1,2 +1,4 @@
 rootProject.name = 'diva-term'
 
+include 'diva-blood'
+include 'diva-opera'
