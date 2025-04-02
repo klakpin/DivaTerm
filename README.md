@@ -41,23 +41,26 @@ try (var presenter = ConsoleTerminalPresenter.standard()) {
 
 Add the **essence of DivaTerm** to your project:
 
-### Gradle (Kotlin)
 
+### Gradle (Kotlin)
+Add GitHub repository
+```groovy
+repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/klakpin/DivaTerm")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_PERSONAL_TOKEN")
+            }
+        }
+    }
+```
+Add dependency
 ```kotlin
 dependencies {
     implementation("io.github.klakpin:divaterm:0.0.1-SHAPSHOT")
 }  
-```
-
-### Maven
-
-```xml
-
-<dependency>
-    <groupId>io.github.yourname</groupId>
-    <artifactId>divaterm</artifactId>
-    <version>1.0.0</version>
-</dependency>  
 ```
 
 ---
