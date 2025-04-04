@@ -1,9 +1,13 @@
 package io.github.klakpin;
 
+import io.github.klakpin.components.api.choice.ChoiceOption;
 import io.github.klakpin.terminal.ConsoleTerminalPresenter;
 import io.github.klakpin.terminal.TerminalPresenter;
+import net.datafaker.Faker;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.SubmissionPublisher;
 
@@ -24,6 +28,7 @@ public class ComponentsExamples {
             messages(presenter);
             prompt(presenter);
             interactiveChoice(presenter);
+            simpleInteractiveChoice(presenter);
             confirm(presenter);
             waitWithDetails(presenter);
             waitWithoutDetails(presenter);
@@ -50,24 +55,28 @@ public class ComponentsExamples {
         presenter.errorInBracket("Some\nerror\nin\nbracket");
     }
 
-    private void interactiveChoice(TerminalPresenter presenter) {
-//        var lotOfOptions = new ArrayList<ChoiceOption>();
-//
-//        for (int i = 0; i < 100; i++) {
-//            lotOfOptions.add(new ChoiceOption(i, UUID.randomUUID().toString()));
-//        }
-//
-//        var filteredResult = presenter.choice(cb ->
-//                cb.withQuestion("What UUID you like the most?")
-//                        .withOptions(lotOfOptions)
-//                        .withMaxDisplayResults(5)
-//                        .withFilteringEnabled(true)
-//                        .withFilterSimilarityCutoff(0.8)
-//        );
-
-//        presenter.message(filteredResult.displayText());
+    private void simpleInteractiveChoice(TerminalPresenter presenter) {
         presenter.stringChoice("test question", List.of("first", "second", "third", "fourth", "fifth"));
         presenter.stringMultiChoice("test question", List.of("first", "second", "third", "fourth", "fifth"), 3);
+    }
+
+    private void interactiveChoice(TerminalPresenter presenter) {
+        var lotOfOptions = new ArrayList<ChoiceOption>();
+
+        var desserts = new Faker().dessert();
+        for (int i = 0; i < 20; i++) {
+            lotOfOptions.add(new ChoiceOption(i, desserts.variety()));
+        }
+
+        var filteredResult = presenter.choice(cb ->
+                cb.withQuestion("What dessert you want to have today?")
+                        .withOptions(lotOfOptions)
+                        .withMaxDisplayResults(5)
+                        .withFilteringEnabled(true)
+                        .withFilterSimilarityCutoff(0.7)
+        );
+
+        presenter.message(filteredResult.displayText());
     }
 
     private void waitWithoutDetails(TerminalPresenter presenter) {

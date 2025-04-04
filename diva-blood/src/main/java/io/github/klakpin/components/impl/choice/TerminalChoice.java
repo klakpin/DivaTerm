@@ -53,18 +53,30 @@ public class TerminalChoice implements Choice {
                           String question,
                           int maxDisplayResults,
                           int maxSelectResults,
-                          boolean multiSelect,
                           boolean filteringEnabled,
                           Double filteringSimilarityCutoff,
                           List<ChoiceOption> options,
                           OptionsProvider provider,
                           OptionsComparator optionsComparator,
                           boolean dontShowSelected) {
+        if (options == null && provider == null) {
+            throw new IllegalStateException("One of 'options' or 'optionsProvider' should be set for Choice component, but none was set");
+        }
+        if (terminal.jlineTerminal().getType().equals("dumb")) {
+            throw new IllegalStateException("Interactive options are disabled for dumb terminal");
+        }
+        if (maxDisplayResults < 1) {
+            throw new IllegalStateException("maxDisplayResults should be more than 0");
+        }
+        if (maxSelectResults < 1) {
+            throw new IllegalStateException("maxSelectResults should be more than 0");
+        }
+
         this.terminal = terminal;
         this.colorPalette = colorPalette;
         this.question = question;
         this.maxSelectResults = maxSelectResults;
-        this.multiSelect = multiSelect;
+        this.multiSelect = maxSelectResults > 1;
         this.filteringEnabled = filteringEnabled;
         this.filteringSimilarityCutoff = filteringSimilarityCutoff;
         this.options = options;
@@ -89,8 +101,6 @@ public class TerminalChoice implements Choice {
             printSelected(List.of(visibleOptions.get(activeElementIndex)));
         }
         return visibleOptions.get(activeElementIndex);
-        // TODO fix case when all elements are filtered out
-
     }
 
     @Override
@@ -129,10 +139,6 @@ public class TerminalChoice implements Choice {
                 needRedraw = false;
                 visibleOptions = getVisibleOptions();
                 drawChoice();
-//                terminal.printDebugInfo("Choice state", Arrays.asList(
-//                        String.format("activeElementIndex: '%s'", activeElementIndex),
-//                        String.format("selectedIds: '%s'", selectedIds)
-//                ), 15);
             }
 
             int input = terminal.pollInput(reader);

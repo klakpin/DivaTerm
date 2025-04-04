@@ -4,6 +4,8 @@ plugins {
 }
 
 dependencies {
+    implementation 'net.datafaker:datafaker:2.4.2'
+
     implementation(project(":diva-blood"))
 }
 

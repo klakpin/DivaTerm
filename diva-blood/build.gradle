@@ -4,9 +4,6 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'io.github.klakpin'
-version = '0.0.1-SNAPSHOT'
-
 dependencies {
     api 'org.jline:jline:3.29.0'
 

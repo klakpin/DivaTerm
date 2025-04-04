@@ -117,7 +117,6 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
         var choice = componentsFactory.choiceBuilder()
                 .withQuestion(question)
                 .withFilteringEnabled(true)
-                .withMultiSelect(true)
                 .withMaxSelectResults(limit)
                 .withOptionsComparator(new FuzzyDisplayTextComparator())
                 .withOptions(optionsMap.values().stream().toList())
@@ -133,8 +132,7 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
     @Override
     public ChoiceOption choice(Function<ChoiceBuilder, ChoiceBuilder> builder) {
         var rawBuilder = componentsFactory
-                .choiceBuilder()
-                .withMultiSelect(false);
+                .choiceBuilder();
 
         return builder.apply(rawBuilder)
                 .build()
@@ -144,8 +142,7 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
     @Override
     public List<ChoiceOption> multiChoice(Function<ChoiceBuilder, ChoiceBuilder> builder) {
         var rawBuilder = componentsFactory
-                .choiceBuilder()
-                .withMultiSelect(true);
+                .choiceBuilder();
 
         return builder.apply(rawBuilder)
                 .build()

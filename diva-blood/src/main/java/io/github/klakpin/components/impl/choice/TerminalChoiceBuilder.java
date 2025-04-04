@@ -19,7 +19,6 @@ public class TerminalChoiceBuilder implements Choice.ChoiceBuilder {
     private String question = null;
     private int maxDisplayResults = 10;
     private int maxSelectResults = -1;
-    private boolean multiSelect = false;
     private boolean filteringEnabled = true;
 
     private Double filteringSimilarityCutoff = 0.0;
@@ -58,12 +57,6 @@ public class TerminalChoiceBuilder implements Choice.ChoiceBuilder {
     @Override
     public Choice.ChoiceBuilder withMaxSelectResults(int maxSelectResults) {
         this.maxSelectResults = maxSelectResults;
-        return this;
-    }
-
-    @Override
-    public Choice.ChoiceBuilder withMultiSelect(Boolean multiSelect) {
-        this.multiSelect = multiSelect;
         return this;
     }
 
@@ -107,21 +100,12 @@ public class TerminalChoiceBuilder implements Choice.ChoiceBuilder {
 
     @Override
     public Choice build() {
-        if (options == null && optionsProvider == null) {
-            throw new IllegalStateException("One of 'options' or 'optionsProvider' should be set for Choice component, but none was set");
-        }
-
-        if (terminalWrapper.jlineTerminal().getType().equals("dumb")) {
-            throw new IllegalStateException("Interactive options are disabled for dumb terminal");
-        }
-
         return new TerminalChoice(
                 terminalWrapper,
                 colorPalette,
                 question,
                 maxDisplayResults,
                 maxSelectResults,
-                multiSelect,
                 filteringEnabled,
                 filteringSimilarityCutoff,
                 options,
