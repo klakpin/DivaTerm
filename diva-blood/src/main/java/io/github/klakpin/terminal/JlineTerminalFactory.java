@@ -13,18 +13,19 @@ public class JlineTerminalFactory {
                 .system(true)
                 .build();
 
+        // Handle CTRL+C signal separately
         Signal.handle(new Signal("INT"), sig -> {
-            System.out.println("\nExecution aborted");
             terminal.puts(InfoCmp.Capability.cursor_visible);
-            terminal.flush(); // Ensure the cursor is restored
+            terminal.flush();
             try {
-                terminal.close(); // Cleanup
+                terminal.close();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
             System.exit(0);
         });
 
+        // Handle other exits
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             terminal.puts(InfoCmp.Capability.cursor_visible);
             terminal.flush();

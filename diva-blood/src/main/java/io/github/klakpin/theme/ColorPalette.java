@@ -4,6 +4,10 @@ public interface ColorPalette {
 
     String apply(String string, ColorFeature... features);
 
+    /**
+     * Color features that can be used with color palette. You can overwrite them if you want; check specific colors
+     * used in the component implementations.
+     */
     enum ColorFeature {
         info,
         success,
