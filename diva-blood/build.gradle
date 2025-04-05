@@ -2,6 +2,14 @@ plugins {
     id 'java'
     id 'java-library'
     id 'maven-publish'
+    id 'org.jreleaser' version '1.17.0'
+}
+
+version = '0.0.1'
+
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 dependencies {
@@ -20,19 +28,72 @@ test {
 }
 
 publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/klakpin/DivaTerm")
-            credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_PACKAGES_USERNAME")
-                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_PACKAGES_TOKEN")
+    publications {
+        maven(MavenPublication) {
+            groupId = 'io.github.klakpin'
+            artifactId = 'diva-term'
+
+            from components.java
+
+            pom {
+                name = 'Diva Term'
+                description = 'Set of simple ready-to-use terminal UI components for interactive Java CLI applications'
+                url = 'https://github.com/aalmiray/app'
+                inceptionYear = '2025'
+                licenses {
+                    license {
+                        name = 'MIT'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'klakpin'
+                        name = 'Ilia Kuznetsov'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/klakpin/DivaTerm.git'
+                    developerConnection = 'scm:git:ssh://github.com/klakpin/DivaTerm.git'
+                    url = 'https://github.com/klakpin/DivaTerm'
+                }
             }
         }
     }
-    publications {
-        gpr(MavenPublication) {
-            from(components.java)
+
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir('staging-deploy')
+        }
+    }
+}
+
+jreleaser {
+    signing {
+        active = 'ALWAYS'
+        armored = true
+    }
+    deploy {
+        maven {
+            nexus2 {
+                'maven-central' {
+                    active = 'ALWAYS'
+                    url = 'https://s01.oss.sonatype.org/service/local'
+                    snapshotUrl = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+                    closeRepository = true
+                    releaseRepository = false
+                    stagingRepository('build/staging-deploy')
+                }
+            }
+            /* Portal Publisher API
+            mavenCentral {
+                sonatype {
+                    active = 'ALWAYS'
+                    url = 'https://central.sonatype.com/api/v1/publisher'
+                    stagingRepository('target/staging-deploy')
+                }
+            }
+            */
         }
     }
 }
