@@ -14,18 +14,22 @@
 
 ## ✨ **Features**
 
+- **Simplicity** – This is not a framework for full-featured TUI rather than basic components for command-based CLI
+  applications.
 - **Sleek, Rich Styling** – ANSI colors, bold prompts, and smooth animations.
 - **JLine3-Powered** – Sharp and precise.
 - **Ready to use** – Jump in straight to terminal components.
 
 ```java
-try (var presenter = ConsoleTerminalPresenter.standard()) {
-    presenter.message("Welcome to app");
-    
-    var singleResult = presenter.stringChoice("What action you want to perform?",
+try(var presenter = ConsoleTerminalPresenter.standard()){
+        presenter.
+
+message("Welcome to app");
+
+var singleResult = presenter.stringChoice("What action you want to perform?",
         List.of("first", "second", "third", "fourth", "fifth"));
-    
-    var confirmation = presenter.promptBoolean("Are you sure?");
+
+var confirmation = presenter.promptBoolean("Are you sure?");
 }
 ```
 
@@ -41,37 +45,97 @@ try (var presenter = ConsoleTerminalPresenter.standard()) {
 
 Add the **essence of DivaTerm** to your project:
 
+### Gradle
 
-### Gradle (Kotlin)
-Add GitHub repository
 ```groovy
-repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/klakpin/DivaTerm")
-            credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_USERNAME")
-                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_PERSONAL_TOKEN")
-            }
-        }
-    }
-```
-Add dependency
-```kotlin
 dependencies {
-    implementation("io.github.klakpin:divaterm:0.0.1-SHAPSHOT")
-}  
+    implementation("io.github.klakpin:divaterm:0.0.2")
+}
 ```
+
+### Maven
+
+```xml
+
+<dependency>
+    <groupId>io.github.klakpin</groupId>
+    <artifactId>divaterm</artifactId>
+    <version>0.0.2</version>
+</dependency>
+```
+
+## 🩸 **Quickstart**
+
+Awaken your terminal's power with the high-level presenter and use it directly:
+
+```java
+var presenter = ConsoleTerminalPresenter.standard();
+
+presenter.successMessage("Action completed");
+```
+
+### Available components in presenter are:
+
+- Messages:
+    - plain
+    - success
+    - error
+    - bracket
+    - error bracket
+- Waiting:
+    - simple waiting
+    - waiting with details
+- Prompt:
+    - simple prompt
+    - prompt with default value
+- Choice:
+    - string single choice
+    - string multichoice
+    - choice builder
+- Confirmation pop-up
 
 ---
 
-## 🌙 **Quickstart**
+## 🌙 **Usage Options**
 
-Awaken your terminal’s power:
+DivaTerm offers three elegant ways to bring terminal magic to your Java applications:
 
-```java
+1. **High-Level Presenter** (Recommended)  
+   The simplest way to create beautiful terminal interfaces with minimal code:
+   ```java
+   var presenter = ConsoleTerminalPresenter.standard();
+   ```
 
-```
+Note: the high-level presenter assumes that application is run in interactive terminal with rich colors.
+
+2. **Terminal Components Factory**  
+   For more control, create individual components through our factory:
+   ```java
+    // JLine terminal instance
+    var terminal = new JlineTerminalFactory().buildTerminal();        
+    // Color palette for elements                                                      
+    var colorPalette = new DefaultTerminalColorPalette(Collections.emptyMap(), true);
+    // Executor for drawing async updates, like in a waiting component
+    var drawingExecutor = Executors.newSingleThreadScheduledExecutor();
+   
+    // Build components factory
+    var factory = new TerminalComponentFactory(terminal, drawingExecutor, colorPalette);
+   
+    // Use factory to show the element
+    factory.buildConfirm().confirm(confirmationText);
+   ```
+
+3. **Direct Components Usage**  
+   For maximum flexibility, use components directly:
+   ```java
+   // JLine terminal instance
+   var terminal = new JlineTerminalFactory().buildTerminal();        
+   // Color palette for elements                                                      
+   var colorPalette = new DefaultTerminalColorPalette(Collections.emptyMap(), true);
+   
+   var messageComponent = new TerminalMessage(terminal, colorPalette);
+   messageComponent.printMessage(message, ColorFeature.error);
+   ```
 
 ---
 
