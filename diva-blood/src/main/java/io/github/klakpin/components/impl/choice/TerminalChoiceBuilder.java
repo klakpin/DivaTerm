@@ -18,7 +18,7 @@ public class TerminalChoiceBuilder implements Choice.ChoiceBuilder {
 
     private String question = null;
     private int maxDisplayResults = 10;
-    private int maxSelectResults = -1;
+    private int maxSelectResults = 1;
     private boolean filteringEnabled = true;
 
     private Double filteringSimilarityCutoff = 0.0;
