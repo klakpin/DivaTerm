@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Provides options for a Choice terminal component based on user input. Can be useful in complex input scenarios
  * when you want to give a set of options based on input.
- * <p/>
+ * <p>
  * OptionsProvider does not cancel the consecutive filtering and sorting.
  */
 public interface OptionsProvider {
