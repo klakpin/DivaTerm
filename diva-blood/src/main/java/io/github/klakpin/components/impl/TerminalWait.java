@@ -4,7 +4,6 @@ import io.github.klakpin.components.api.Wait;
 import io.github.klakpin.terminal.NoopIntConsumer;
 import io.github.klakpin.terminal.TerminalWrapper;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
-import io.github.klakpin.components.helper.TerminalCleaner;
 import io.github.klakpin.theme.ColorPalette;
 import org.apache.commons.collections4.queue.SynchronizedQueue;
 import org.jline.terminal.Cursor;
@@ -70,10 +69,10 @@ public class TerminalWait implements Wait {
         }
 
         if (detailsBuffer != null) {
-            detailsBuffer.forEach(s -> terminal.writer().println(colorPalette.apply(s, secondary_info)));
+            detailsBuffer.forEach(s -> terminal.writer().println(colorPalette.apply(s, muted)));
         }
 
-        terminal.writer().print(colorPalette.apply(String.valueOf(steps[step]), loading_spinner) + " " + message);
+        terminal.writer().print(colorPalette.apply(String.valueOf(steps[step]), warning) + " " + message);
     }
 
     @Override

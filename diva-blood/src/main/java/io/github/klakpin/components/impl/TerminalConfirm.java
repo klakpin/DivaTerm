@@ -106,7 +106,7 @@ public class TerminalConfirm implements Confirm {
         if (active) {
             return new ColorFeature[]{active_background, bold};
         } else {
-            return new ColorFeature[]{inactive_background};
+            return new ColorFeature[]{muted_background};
         }
     }
 }

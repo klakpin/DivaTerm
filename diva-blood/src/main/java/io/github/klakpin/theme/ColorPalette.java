@@ -9,24 +9,19 @@ public interface ColorPalette {
      * used in the component implementations.
      */
     enum ColorFeature {
-        info,
+        primary,
+        secondary,
         success,
         error,
         warning,
+        muted,
+        accent,
 
-        bold,
         call_to_action,
 
-
-        active_text,
-
         active_background,
-        inactive_background,
+        muted_background,
 
-        secondary_info,
-        secondary_info_bracket,
-        error_bracket,
-
-        loading_spinner
+        bold,
     }
 }
