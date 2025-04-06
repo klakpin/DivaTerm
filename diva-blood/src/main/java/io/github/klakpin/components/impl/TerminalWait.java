@@ -3,7 +3,6 @@ package io.github.klakpin.components.impl;
 import io.github.klakpin.components.api.Wait;
 import io.github.klakpin.terminal.NoopIntConsumer;
 import io.github.klakpin.terminal.TerminalWrapper;
-import org.apache.commons.collections4.collection.SynchronizedCollection;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import io.github.klakpin.components.helper.TerminalCleaner;
 import io.github.klakpin.theme.ColorPalette;
@@ -112,7 +111,7 @@ public class TerminalWait implements Wait {
         } finally {
             // +1 for the line with a spinner
             cleaner.cleanLines(maxLines + 1, initialPosition);
-            terminal.setCursorPosition(initialPosition.getY() - 1, initialPosition.getX());
+            terminal.setCursorPosition(initialPosition.getY(), initialPosition.getX());
         }
     }
 

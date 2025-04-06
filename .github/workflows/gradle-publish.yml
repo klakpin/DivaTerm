@@ -4,9 +4,8 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - '*.md'
-      - '**/*.md'
+    paths:
+      - 'diva-blood/**'
 
 jobs:
   build:

@@ -74,25 +74,78 @@ presenter.
 successMessage("Action completed");
 ```
 
-### Available components in presenter are:
+### Available components in presenter
 
-- Messages:
-    - plain
-    - success
-    - error
-    - bracket
-    - error bracket
-- Waiting:
-    - simple waiting
-    - waiting with details
-- Prompt:
-    - simple prompt
-    - prompt with default value
-- Choice:
-    - string single choice
-    - string multichoice
-    - choice builder
-- Confirmation pop-up
+#### Messages
+
+- plain
+- success
+- error
+- bracket
+- error bracket
+
+[//]: # (<p> <img src="https://i.imgur.com/El2AJ8B.gif" alt="DivaTerm in action" width="600"/> </p>)
+
+#### Waiting
+
+- simple waiting
+- waiting with details
+
+```java
+var waitingFuture = CompletableFuture.runAsync(() -> {
+   try {
+      Thread.sleep(5000);
+   } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+   }
+});
+
+presenter.waitWhile("Waiting 5 seconds", waitingFuture);
+```
+<p> <img src="https://i.imgur.com/exDjVB5.gif" alt="DivaTerm in action" width="400"/> </p>
+
+#### Prompt
+
+- simple prompt
+- prompt with default value
+
+#### Choice
+
+- string single choice
+- string multichoice
+- choice builder
+```java
+var dessertsChoices = /* init choices */
+        
+var selectedChoice = presenter.choice(cb ->
+   cb.withQuestion("What dessert you want to have today?")
+          .withOptions(new ArrayList<>(dessertsChoices))
+          .withMaxDisplayResults(5)
+          .withFilteringEnabled(true)
+          .withFilterSimilarityCutoff(0.7)
+);
+```
+<p> <img src="https://i.imgur.com/tQnsL0b.gif" alt="DivaTerm in action" width="400"/> </p>
+
+```java
+var dessertsChoices = /* init choices */
+        
+var selectedChoice = presenter.multiChoice(cb ->
+        cb.withQuestion("What dessert you want to have today?")
+            .withOptions(new ArrayList<>(dessertsChoices))
+            .withMaxDisplayResults(5)
+            .withMaxSelectResults(3)
+            .withFilteringEnabled(true)
+        );
+```
+<p> <img src="https://i.imgur.com/eHP6LH2.gif" alt="DivaTerm in action" width="400"/> </p>
+
+#### Confirmation
+
+```java
+presenter.confirm();
+```
+<p> <img src="https://i.imgur.com/isbYbEm.gif" alt="DivaTerm in action" width="400"/> </p>
 
 ---
 
@@ -126,7 +179,7 @@ Note: the high-level presenter assumes that application is run in interactive te
    ```
 
 3. **Direct Components Usage**  
-   For maximum flexibility, use components directly:
+   For maximum flexibility, use components directly. Do not call the same component twice, most of them are single-use.
    ```java
    // JLine terminal instance
    var terminal = new JlineTerminalFactory().buildTerminal();        

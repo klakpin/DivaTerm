@@ -152,13 +152,15 @@ public class ComponentsExamples {
     }
 
     private void waitWithoutDetails(TerminalPresenter presenter) {
-        presenter.waitWhile("Waiting 5 seconds", CompletableFuture.runAsync(() -> {
+        var waitingFuture = CompletableFuture.runAsync(() -> {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-        }));
+        });
+
+        presenter.waitWhile("Waiting 5 seconds", waitingFuture);
         presenter.message("Waited 5 seconds");
     }
 
@@ -181,7 +183,7 @@ public class ComponentsExamples {
             }
         });
 
-        presenter.waitWhileWithDetails("Counting up to " + maxCount, publisher, 10);
+        presenter.waitWhileWithDetails("Counting up to " + maxCount, publisher, 5);
         presenter.message("Counted to " + maxCount);
     }
 }
