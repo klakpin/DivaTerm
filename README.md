@@ -21,21 +21,20 @@
 - **Ready to use** – Jump in straight to terminal components.
 
 ```java
-try(var presenter = ConsoleTerminalPresenter.standard()){
-var choice = presenter.stringChoice("What action you want to perform?",
-        List.of("first", "second", "third", "fourth", "fifth"));
+try (var presenter = ConsoleTerminalPresenter.standard()) {
+   var actions = List.of("first", "second", "third", "fourth", "fifth");
+   
+   var choice = presenter.stringChoice("What action you want to perform?", actions);
 
-    presenter.
+   var confirmed = presenter.confirm(choice + " - are you sure?");
 
-confirm(choice +" - are you sure?");
-
-    presenter.
-
-successMessage("Action completed");
+   if (confirmed) {
+      presenter.successMessage("Action completed");
+   }
 }
 ```
 
-<p> <img src="https://i.imgur.com/cBQFvIi.gif" alt="DivaTerm in action" width="600"/> </p>
+[//]: # (<p> <img src="https://i.imgur.com/cBQFvIi.gif" alt="DivaTerm in action" width="600"/> </p>)
 
 ---
 
@@ -47,7 +46,7 @@ Add the **essence of DivaTerm** to your project:
 
 ```groovy
 dependencies {
-    implementation("io.github.klakpin:divaterm:0.0.2")
+    implementation("io.github.klakpin:divaterm:0.0.6")
 }
 ```
 
@@ -58,7 +57,7 @@ dependencies {
 <dependency>
     <groupId>io.github.klakpin</groupId>
     <artifactId>divaterm</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.6</version>
 </dependency>
 ```
 
@@ -69,9 +68,7 @@ Awaken your terminal's power with the high-level presenter and use it directly:
 ```java
 var presenter = ConsoleTerminalPresenter.standard();
 
-presenter.
-
-successMessage("Action completed");
+presenter.successMessage("Action completed");
 ```
 
 ### Available components in presenter

@@ -30,9 +30,11 @@ public class ComponentsExamples {
             var choice = presenter.stringChoice("What action you want to perform?",
                     List.of("first", "second", "third", "fourth", "fifth"));
 
-            presenter.confirm(choice + " - are you sure?");
+            var confirmed = presenter.confirm(choice + " - are you sure?");
 
-            presenter.successMessage("Action completed");
+            if (confirmed) {
+                presenter.successMessage("Action completed");
+            }
         }
     }
 

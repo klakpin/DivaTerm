@@ -119,7 +119,7 @@ public class TerminalChoice implements Choice {
         interactiveChoiceLoop();
 
         terminal.setCursorPosition(initialPosition.getY(), 0);
-        terminal.forwardCleanup(maxDisplayResults + HEADER_OFFSET);
+        terminal.forwardCleanup(maxDisplayResults + HEADER_OFFSET + FOOTER_OFFSET);
 
         terminal.setCursorPosition(initialPosition.getY(), 0);
         terminal.flush();
