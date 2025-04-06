@@ -105,9 +105,6 @@ public class TerminalWrapper implements Closeable, Flushable {
 
                 return UNKNOWN_CONTROL;
             }
-            if (initial != -2) {
-//                printPollInfo(false, initial, 0, 0, 0);
-            }
             return initial;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -154,7 +151,7 @@ public class TerminalWrapper implements Closeable, Flushable {
         int longestTextLine = debugLines.stream()
                 .map(s -> s.length() - nullChars(s))
                 .max(Integer::compareTo)
-                .orElseThrow();
+                .orElse(0);
 
         int debugNameSize = debugName.length();
 

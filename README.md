@@ -22,22 +22,20 @@
 
 ```java
 try(var presenter = ConsoleTerminalPresenter.standard()){
-        presenter.
-
-message("Welcome to app");
-
-var singleResult = presenter.stringChoice("What action you want to perform?",
+var choice = presenter.stringChoice("What action you want to perform?",
         List.of("first", "second", "third", "fourth", "fifth"));
 
-var confirmation = presenter.promptBoolean("Are you sure?");
+    presenter.
+
+confirm(choice +" - are you sure?");
+
+    presenter.
+
+successMessage("Action completed");
 }
 ```
 
-<p align="center">
-
-  <img src="https://i.imgur.com/cBQFvIi.gif" alt="DivaTerm in action" width="600"/>
-
-</p>
+<p> <img src="https://i.imgur.com/cBQFvIi.gif" alt="DivaTerm in action" width="600"/> </p>
 
 ---
 
@@ -71,7 +69,9 @@ Awaken your terminal's power with the high-level presenter and use it directly:
 ```java
 var presenter = ConsoleTerminalPresenter.standard();
 
-presenter.successMessage("Action completed");
+presenter.
+
+successMessage("Action completed");
 ```
 
 ### Available components in presenter are:

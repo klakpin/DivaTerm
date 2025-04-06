@@ -7,22 +7,12 @@ import net.datafaker.Faker;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.SubmissionPublisher;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class ComponentsExamples {
-    void runDemo() {
-        try (var presenter = ConsoleTerminalPresenter.standard()) {
-            var choice = presenter.stringChoice("What action you want to perform?",
-                    List.of("first", "second", "third", "fourth", "fifth"));
-
-            presenter.confirm(choice + " - are you sure?");
-
-            presenter.successMessage("Action completed");
-        }
-    }
-
     void runExamples() {
         try (var presenter = ConsoleTerminalPresenter.standard()) {
             messages(presenter);
@@ -35,8 +25,66 @@ public class ComponentsExamples {
         }
     }
 
+    void basicDemo() {
+        try (var presenter = ConsoleTerminalPresenter.standard()) {
+            var choice = presenter.stringChoice("What action you want to perform?",
+                    List.of("first", "second", "third", "fourth", "fifth"));
+
+            presenter.confirm(choice + " - are you sure?");
+
+            presenter.successMessage("Action completed");
+        }
+    }
+
+    void messages() {
+        try (var presenter = ConsoleTerminalPresenter.standard()) {
+            messages(presenter);
+        }
+    }
+
+    void confirm() {
+        try (var presenter = ConsoleTerminalPresenter.standard()) {
+            confirm(presenter);
+        }
+    }
+
+    void prompt() {
+        try (var presenter = ConsoleTerminalPresenter.standard()) {
+            prompt(presenter);
+        }
+    }
+
+    void interactiveChoice() {
+        try (var presenter = ConsoleTerminalPresenter.standard()) {
+            interactiveChoice(presenter);
+        }
+    }
+
+    void multiChoice() {
+        try (var presenter = ConsoleTerminalPresenter.standard()) {
+            interactiveChoiceMulti(presenter);
+        }
+    }
+
+    void waitWithoutDetails() {
+        try (var presenter = ConsoleTerminalPresenter.standard()) {
+            waitWithoutDetails(presenter);
+        }
+    }
+
+    void waitWithDetails() {
+        try (var presenter = ConsoleTerminalPresenter.standard()) {
+            waitWithDetails(presenter);
+        }
+    }
+
     private void confirm(TerminalPresenter presenter) {
-        presenter.message(presenter.confirm().toString());
+        var result = presenter.confirm();
+        if (result) {
+            presenter.message("Confirmed");
+        } else {
+            presenter.message("Not confirmed");
+        }
     }
 
     private void prompt(TerminalPresenter presenter) {
@@ -61,22 +109,46 @@ public class ComponentsExamples {
     }
 
     private void interactiveChoice(TerminalPresenter presenter) {
-        var lotOfOptions = new ArrayList<ChoiceOption>();
+        var dessertsFaker = new Faker().dessert();
+        var desserts = IntStream.range(1, 25).mapToObj(o -> dessertsFaker.variety()).distinct().toList();
 
-        var desserts = new Faker().dessert();
-        for (int i = 0; i < 20; i++) {
-            lotOfOptions.add(new ChoiceOption(i, desserts.variety()));
+        var dessertsChoices = new ArrayList<ChoiceOption>();
+
+        for (int i = 0; i < desserts.size(); i++) {
+            dessertsChoices.add(new ChoiceOption(i, desserts.get(i)));
         }
 
-        var filteredResult = presenter.choice(cb ->
+        var selectedChoice = presenter.choice(cb ->
                 cb.withQuestion("What dessert you want to have today?")
-                        .withOptions(lotOfOptions)
+                        .withOptions(new ArrayList<>(dessertsChoices))
                         .withMaxDisplayResults(5)
                         .withFilteringEnabled(true)
                         .withFilterSimilarityCutoff(0.7)
         );
 
-        presenter.message(filteredResult.displayText());
+        presenter.message("You selected " + selectedChoice.displayText());
+    }
+
+    private void interactiveChoiceMulti(TerminalPresenter presenter) {
+        var dessertsFaker = new Faker().dessert();
+        var desserts = IntStream.range(1, 25).mapToObj(o -> dessertsFaker.variety()).distinct().toList();
+
+        var dessertsChoices = new ArrayList<ChoiceOption>();
+
+        for (int i = 0; i < desserts.size(); i++) {
+            dessertsChoices.add(new ChoiceOption(i, desserts.get(i)));
+        }
+
+        var filteredResult = presenter.multiChoice(cb ->
+                cb.withQuestion("What dessert you want to have today?")
+                        .withOptions(new ArrayList<>(dessertsChoices))
+                        .withMaxDisplayResults(5)
+                        .withMaxSelectResults(3)
+                        .withFilteringEnabled(true)
+                        .withFilterSimilarityCutoff(0.0)
+        );
+
+        presenter.message("You selected: " + filteredResult.stream().map(ChoiceOption::displayText).collect(Collectors.joining(", ")));
     }
 
     private void waitWithoutDetails(TerminalPresenter presenter) {

@@ -12,6 +12,7 @@ import org.jline.utils.NonBlockingReader;
 
 import java.util.*;
 
+import static io.github.klakpin.terminal.TerminalWrapper.SPACE;
 import static io.github.klakpin.terminal.TerminalWrapper.TAB;
 import static io.github.klakpin.theme.ColorPalette.ColorFeature.*;
 import static org.jline.utils.NonBlockingReader.READ_EXPIRED;
@@ -19,7 +20,7 @@ import static org.jline.utils.NonBlockingReader.READ_EXPIRED;
 public class TerminalChoice implements Choice {
 
     private final int HEADER_OFFSET = 2;
-    private final int FOOTER_OFFSET = 0;
+    private final int FOOTER_OFFSET = 2;
 
     private final TerminalWrapper terminal;
     private final ColorPalette colorPalette;
@@ -44,7 +45,7 @@ public class TerminalChoice implements Choice {
 
     private int activeElementIndex = 0;
     private final StringBuffer filter = new StringBuffer();
-    private final List<Integer> selectedIds = new ArrayList<>();
+    private final Map<Integer, ChoiceOption> selectedOptions = new HashMap<>();
 
     List<ChoiceOption> visibleOptions = new ArrayList<>();
 
@@ -96,24 +97,18 @@ public class TerminalChoice implements Choice {
 
     @Override
     public ChoiceOption get() {
-        doGet();
-        if (!dontShowSelected) {
-            printSelected(List.of(visibleOptions.get(activeElementIndex)));
-        }
-        return visibleOptions.get(activeElementIndex);
+        return getMulti().getFirst();
     }
 
     @Override
     public List<ChoiceOption> getMulti() {
         doGet();
+        var results = selectedOptions.values().stream().toList();
+
         if (!dontShowSelected) {
-            printSelected(visibleOptions.stream()
-                    .filter(vo -> selectedIds.contains(vo.id()))
-                    .toList());
+            printSelected(results);
         }
-        return visibleOptions.stream()
-                .filter(vo -> selectedIds.contains(vo.id()))
-                .toList();
+        return results;
     }
 
     private void doGet() {
@@ -124,7 +119,7 @@ public class TerminalChoice implements Choice {
         interactiveChoiceLoop();
 
         terminal.setCursorPosition(initialPosition.getY(), 0);
-        terminal.forwardCleanup(maxDisplayResults + HEADER_OFFSET + FOOTER_OFFSET);
+        terminal.forwardCleanup(maxDisplayResults + HEADER_OFFSET);
 
         terminal.setCursorPosition(initialPosition.getY(), 0);
         terminal.flush();
@@ -149,6 +144,10 @@ public class TerminalChoice implements Choice {
                 updateState(input);
                 needRedraw = true;
             }
+        }
+
+        if (maxSelectResults == 1 && selectedOptions.isEmpty()) {
+            selectedOptions.put(visibleOptions.get(activeElementIndex).id(), visibleOptions.get(activeElementIndex));
         }
     }
 
@@ -179,16 +178,24 @@ public class TerminalChoice implements Choice {
     }
 
     private List<ChoiceOption> filterAndSortOptions(List<ChoiceOption> options) {
-        return options.stream()
+        var beforeCutoff = options.stream()
                 .map(option -> Pair.of(option, optionsComparator.getSimilarity(filter.toString(), option)))
-                .filter(value -> filter.isEmpty() || (value.getRight() >= filteringSimilarityCutoff))
                 .sorted(Comparator.comparingDouble(Pair::getRight))
                 .toList()
                 .reversed()
                 .stream()
                 .limit(maxDisplayResults)
-                .map(Pair::getKey)
                 .toList();
+
+        var afterCutoff = beforeCutoff.stream()
+                .filter(value -> filter.isEmpty() || (value.getRight() >= filteringSimilarityCutoff))
+                .toList();
+
+        if (!afterCutoff.isEmpty()) { // If everything was filtered out, show the first matching element
+            return afterCutoff.stream().map(Pair::getKey).toList();
+        } else {
+            return beforeCutoff.stream().limit(1).map(Pair::getKey).toList();
+        }
     }
 
     private void drawChoice() {
@@ -198,10 +205,16 @@ public class TerminalChoice implements Choice {
 
         terminal.printlnFull(hint);
 
+        if (activeElementIndex > visibleOptions.size() - 1) {
+            activeElementIndex = visibleOptions.size() - 1;
+        }
+
         for (int i = 0; i < visibleOptions.size(); i++) {
             printChoiceRow(i);
         }
 
+        terminal.printlnFull("");
+        terminal.printlnFull(howToString());
 
         for (int i = 0; i < maxDisplayResults - visibleOptions.size(); i++) {
             terminal.emptyLine();
@@ -213,7 +226,7 @@ public class TerminalChoice implements Choice {
     private void printChoiceRow(int index) {
         if (index == activeElementIndex) {
             terminal.printlnFull(activeChoice(visibleOptions.get(index).displayText()));
-        } else if (selectedIds.contains(visibleOptions.get(index).id())) {
+        } else if (selectedOptions.containsKey(visibleOptions.get(index).id())) {
             terminal.printlnFull(selectedChoice(visibleOptions.get(index).displayText()));
         } else {
             terminal.printlnFull(inactiveChoice(visibleOptions.get(index).displayText()));
@@ -221,9 +234,9 @@ public class TerminalChoice implements Choice {
     }
 
     private String activeChoice(String choice) {
-        if (multiSelect && selectedIds.contains(visibleOptions.get(activeElementIndex).id())) {
+        if (multiSelect && selectedOptions.containsKey(visibleOptions.get(activeElementIndex).id())) {
             return colorPalette.apply("> ✓ " + choice, active_text, bold);
-        } else if (multiSelect && !selectedIds.contains(visibleOptions.get(activeElementIndex).id())) {
+        } else if (multiSelect && !selectedOptions.containsKey(visibleOptions.get(activeElementIndex).id())) {
             return colorPalette.apply("> • " + choice, active_text, bold);
         } else {
             return colorPalette.apply("> " + choice, active_text, bold);
@@ -242,44 +255,46 @@ public class TerminalChoice implements Choice {
         }
     }
 
+    private String howToString() {
+        if (multiSelect) {
+            return colorPalette.apply(" tab - select, arrows - move, enter - select, type to filter", secondary_info);
+        } else {
+            return colorPalette.apply(" arrows - move, enter - select, type to filter", secondary_info);
+        }
+    }
+
     private String buildHintString() {
         var result = new StringBuilder();
-        String howtoString;
-        if (multiSelect) {
-            howtoString = colorPalette.apply(" [Use Tab to select, arrows to move, type to filter]:", secondary_info);
-        } else {
-            howtoString = colorPalette.apply(" [Use arrows to move, type to filter]:", secondary_info);
-        }
+
         if (maxDisplayResults < options.size()) {
-            result.append(colorPalette.apply(String.format("Showing incomplete (%s of %s) options, narrow list using a filter", maxDisplayResults, options.size()), secondary_info));
+            result.append(colorPalette.apply(String.format("Showing incomplete (%s of %s) options, use filter for lookup", visibleOptions.size(), options.size()), secondary_info));
         }
 
         result.append("\n")
                 .append(colorPalette.apply("?", bold, info))
                 .append(" ")
                 .append(colorPalette.apply(question))
-                .append(howtoString)
-                .append(" ")
+                .append(": ")
                 .append(filter);
 
-        var questionStrLength = terminal.getWidth() - question.length() - howtoString.length() - filter.length();
+        var questionStrLength = terminal.getWidth() - question.length() - filter.length() - result.length() - 1;
         return result.append(" ".repeat(Math.max(questionStrLength, 0))).toString();
     }
 
     private void updateState(int input) {
         if (input == TAB && multiSelect) {
-            var selectedId = visibleOptions.get(activeElementIndex).id();
+            var selectedOption = visibleOptions.get(activeElementIndex);
 
-            if (selectedIds.contains(selectedId)) {
-                selectedIds.remove((Integer) selectedId);
-            } else if (maxSelectResults != -1 && selectedIds.size() < maxSelectResults) {
-                selectedIds.add(selectedId);
+            if (selectedOptions.containsKey(selectedOption.id())) {
+                selectedOptions.remove(selectedOption.id());
+            } else if (maxSelectResults != -1 && selectedOptions.size() < maxSelectResults) {
+                selectedOptions.put(selectedOption.id(), selectedOption);
             }
         } else if (input == TerminalWrapper.ARROW_DOWN || input == TerminalWrapper.ARROW_UP) {
             updateActiveElement(input, visibleOptions.size());
         } else if (input == TerminalWrapper.BACKSPACE && !filter.isEmpty()) {
             filter.deleteCharAt(filter.length() - 1);
-        } else if (Character.isLetterOrDigit(input)) {
+        } else if (Character.isLetterOrDigit(input) || input == SPACE) {
             filter.append((char) input);
         }
     }
