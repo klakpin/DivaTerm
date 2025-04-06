@@ -1,4 +1,4 @@
-name: Publish Diva Term to Maven Central
+name: Diva Rehearsal (tests)
 
 on:
   push:
