@@ -22,7 +22,6 @@ public class TerminalWait implements Wait {
     private final TerminalWrapper terminal;
     private final ScheduledExecutorService drawingExecutor;
     private final ColorPalette colorPalette;
-    private final TerminalCleaner cleaner;
 
     private int step = -1;
     private final char[] steps = {'⡿', '⣟', '⣯', '⣷', '⣾', '⣽', '⣻', '⢿'};
@@ -32,12 +31,10 @@ public class TerminalWait implements Wait {
 
     public TerminalWait(Terminal terminal,
                         ScheduledExecutorService drawingExecutor,
-                        ColorPalette colorPalette,
-                        TerminalCleaner cleaner) {
+                        ColorPalette colorPalette) {
         this.terminal = new TerminalWrapper(terminal);
         this.drawingExecutor = drawingExecutor;
         this.colorPalette = colorPalette;
-        this.cleaner = cleaner;
     }
 
     @Override
@@ -55,7 +52,7 @@ public class TerminalWait implements Wait {
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
-            cleaner.cleanLines(1, initialPosition);
+            terminal.cleanLines(1, initialPosition);
             terminal.setCursorPosition(initialPosition.getY(), 0);
         }
     }
@@ -63,7 +60,7 @@ public class TerminalWait implements Wait {
 
     private void updateAnimation(String message) {
         terminal.puts(InfoCmp.Capability.cursor_address, initialPosition.getY(), 0);
-        terminal.writer().flush();
+        terminal.flush();
 
 
         if (step < steps.length - 1) {
@@ -81,7 +78,7 @@ public class TerminalWait implements Wait {
 
     @Override
     public void waitWhileWithDetails(String message, SubmissionPublisher<String> details, int maxLines) {
-        cleaner.forwardCleanup(maxLines);
+        terminal.forwardCleanup(maxLines);
 
         initialPosition = terminal.getCursorPosition(new NoopIntConsumer());
         initialPosition = new Cursor(initialPosition.getX(), initialPosition.getY() - maxLines);
@@ -110,7 +107,7 @@ public class TerminalWait implements Wait {
             throw new RuntimeException(e);
         } finally {
             // +1 for the line with a spinner
-            cleaner.cleanLines(maxLines + 1, initialPosition);
+            terminal.cleanLines(maxLines + 1, initialPosition);
             terminal.setCursorPosition(initialPosition.getY(), initialPosition.getX());
         }
     }

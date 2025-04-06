@@ -73,6 +73,10 @@ public class TerminalChoice implements Choice {
             throw new IllegalStateException("maxSelectResults should be more than 0");
         }
 
+        if (filteringSimilarityCutoff < 0 || filteringSimilarityCutoff > 1) {
+            throw new IllegalStateException("filteringSimilarityCutoff must be between 0 and 1");
+        }
+
         this.terminal = terminal;
         this.colorPalette = colorPalette;
         this.question = question;
@@ -257,9 +261,9 @@ public class TerminalChoice implements Choice {
 
     private String howToString() {
         if (multiSelect) {
-            return colorPalette.apply(" tab - select, arrows - move, enter - select, type to filter", secondary_info);
+            return colorPalette.apply(" tab - select, arrows - move, enter - confirm, type to filter", secondary_info);
         } else {
-            return colorPalette.apply(" arrows - move, enter - select, type to filter", secondary_info);
+            return colorPalette.apply(" arrows - move, enter - confirm, type to filter", secondary_info);
         }
     }
 

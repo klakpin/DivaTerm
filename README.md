@@ -12,6 +12,10 @@
 
 ---
 
+![Maven Central Version](https://img.shields.io/maven-central/v/io.github.klakpin/diva-term)
+[![License](https://img.shields.io/badge/license-MIT-crimson)](LICENSE)
+
+
 ## ✨ **Features**
 
 - **Simplicity** – This is not a framework for full-featured TUI rather than basic components for command-based CLI
