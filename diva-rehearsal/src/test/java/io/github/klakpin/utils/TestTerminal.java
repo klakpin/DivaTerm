@@ -101,7 +101,6 @@ public class TestTerminal implements Terminal {
 
     @Override
     public void raise(Signal signal) {
-
     }
 
     @Override
@@ -126,17 +125,14 @@ public class TestTerminal implements Terminal {
 
     @Override
     public void pause() {
-
     }
 
     @Override
     public void pause(boolean wait) throws InterruptedException {
-
     }
 
     @Override
     public void resume() {
-
     }
 
     @Override

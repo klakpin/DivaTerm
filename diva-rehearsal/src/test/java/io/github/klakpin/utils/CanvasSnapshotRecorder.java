@@ -1,5 +1,7 @@
 package io.github.klakpin.utils;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.ArrayList;
@@ -12,12 +14,18 @@ public class CanvasSnapshotRecorder {
 
     private final List<String> snapshots = new ArrayList<>();
 
+    private static final Logger log = LogManager.getLogger();
+
     public CanvasSnapshotRecorder(FlushableTestCanvas canvas) {
         this.canvas = canvas;
     }
 
     public void takeSnapshot() {
-        snapshots.add(canvas.toTrimmedString());
+        var snapshot = canvas.toTrimmedString();
+
+        log.info("Added snapshot #" + snapshots.size() + "\n" + snapshot + "\n--- end of snapshot #" + snapshots.size());
+
+        snapshots.add(snapshot);
     }
 
     public void assertSnapshots(List<String> expectedSnapshots) {
@@ -34,7 +42,7 @@ public class CanvasSnapshotRecorder {
             var snapshot = snapshots.get(i);
 
             var expectedLines = expected.split("\n");
-            var snapshotLines = expected.split("\n");
+            var snapshotLines = snapshot.split("\n");
 
             Assertions.assertEquals(expectedLines.length, snapshotLines.length, "Snapshot and expected view are different in length");
             for (int e = 0; e < expectedLines.length; e++) {
@@ -45,9 +53,7 @@ public class CanvasSnapshotRecorder {
 
     public void printSnapshots() {
         snapshots.forEach(string -> {
-            System.out.println("\n---");
-            System.out.println(string);
-            System.out.println("---\n");
+            log.info("\n---\n" + string + "\n---\n");
         });
     }
 }

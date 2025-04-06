@@ -1,9 +1,14 @@
 package io.github.klakpin.utils;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayDeque;
 import java.util.Queue;
 
 public class FlushableTestCanvas {
+
+    private static final Logger log = LogManager.getLogger();
 
     private final char[][] canvas;
 
@@ -32,6 +37,8 @@ public class FlushableTestCanvas {
         if (input == '\n') {
             y++;
             x = 0;
+        } else if (input == '\r') {
+            x = 0;
         } else {
             events.add(new CanvasEvent(x, y, input));
             x++;
@@ -52,7 +59,7 @@ public class FlushableTestCanvas {
             var nextInput = events.poll();
 
             if (nextInput.input != ' ' && nextInput.input != '\u0000') {
-//                System.out.println(nextInput);
+                log.trace(nextInput);
             }
 
             canvas[nextInput.y][nextInput.x] = nextInput.input;

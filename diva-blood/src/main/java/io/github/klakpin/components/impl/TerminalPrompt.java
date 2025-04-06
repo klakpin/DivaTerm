@@ -38,6 +38,7 @@ public class TerminalPrompt implements Prompt {
         }
 
         terminal.printlnFull("\r" + colorPalette.apply("✔ ", success, bold) + text + ": " + colorPalette.apply(result, bold));
+        terminal.flush();
 
         return result;
     }
