@@ -1,5 +1,6 @@
 package io.github.klakpin.terminal;
 
+import io.github.klakpin.components.ComponentsFactory;
 import io.github.klakpin.components.api.choice.Choice;
 import io.github.klakpin.components.api.choice.ChoiceOption;
 
@@ -132,4 +133,10 @@ public interface TerminalPresenter extends AutoCloseable {
      * @return {@code true} if confirmed, {@code false} otherwise
      */
     Boolean confirm(String confirmationText);
+
+    /**
+     * Get the components factory used by this presenter.
+     * Can be useful for a component direct invocation.
+     */
+    ComponentsFactory getComponentsFactory();
 }

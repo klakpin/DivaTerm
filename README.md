@@ -178,7 +178,13 @@ Note: the high-level presenter assumes that application is run in interactive te
     // Use factory to show the element
     factory.buildConfirm().confirm(confirmationText);
    ```
-
+   
+   Or get the components factory from the presenter
+   ```java
+   var presenter = ConsoleTerminalPresenter.standard();
+   vat factory = presenter.getComponentsFactory();
+   ```
+   
 3. **Direct Components Usage**  
    For maximum flexibility, use components directly. Do not call the same component twice, most of them are single-use.
    ```java

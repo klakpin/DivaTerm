@@ -158,6 +158,11 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
     }
 
     @Override
+    public ComponentsFactory getComponentsFactory() {
+        return componentsFactory;
+    }
+
+    @Override
     public void close() {
         try {
             componentsFactory.close();
