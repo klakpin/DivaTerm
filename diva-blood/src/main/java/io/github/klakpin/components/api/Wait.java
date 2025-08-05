@@ -9,6 +9,15 @@ import java.util.concurrent.SubmissionPublisher;
 public interface Wait {
     /**
      * Blocks current thread, displays a waiting animation until the {@code waitWhile} future completes.
+     * Returns the result of the future
+     *
+     * @param message   the message to display while waiting
+     * @param waitWhile the future whose completion will end the waiting animation
+     */
+    <T> T waitWhileWithResult(String message, CompletableFuture<T> waitWhile);
+
+    /**
+     * Blocks current thread, displays a waiting animation until the {@code waitWhile} future completes.
      *
      * @param message   the message to display while waiting
      * @param waitWhile the future whose completion will end the waiting animation

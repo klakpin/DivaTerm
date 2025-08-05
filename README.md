@@ -12,6 +12,10 @@
 
 ---
 
+![Maven Central Version](https://img.shields.io/maven-central/v/io.github.klakpin/diva-term)
+[![License](https://img.shields.io/badge/license-MIT-crimson)](LICENSE)
+
+
 ## ✨ **Features**
 
 - **Simplicity** – This is not a framework for full-featured TUI rather than basic components for command-based CLI
@@ -174,7 +178,13 @@ Note: the high-level presenter assumes that application is run in interactive te
     // Use factory to show the element
     factory.buildConfirm().confirm(confirmationText);
    ```
-
+   
+   Or get the components factory from the presenter
+   ```java
+   var presenter = ConsoleTerminalPresenter.standard();
+   vat factory = presenter.getComponentsFactory();
+   ```
+   
 3. **Direct Components Usage**  
    For maximum flexibility, use components directly. Do not call the same component twice, most of them are single-use.
    ```java

@@ -73,6 +73,10 @@ public class TerminalChoice implements Choice {
             throw new IllegalStateException("maxSelectResults should be more than 0");
         }
 
+        if (filteringSimilarityCutoff < 0 || filteringSimilarityCutoff > 1) {
+            throw new IllegalStateException("filteringSimilarityCutoff must be between 0 and 1");
+        }
+
         this.terminal = terminal;
         this.colorPalette = colorPalette;
         this.question = question;
@@ -235,16 +239,16 @@ public class TerminalChoice implements Choice {
 
     private String activeChoice(String choice) {
         if (multiSelect && selectedOptions.containsKey(visibleOptions.get(activeElementIndex).id())) {
-            return colorPalette.apply("> ✓ " + choice, active_text, bold);
+            return colorPalette.apply("> ✓ " + choice, accent, bold);
         } else if (multiSelect && !selectedOptions.containsKey(visibleOptions.get(activeElementIndex).id())) {
-            return colorPalette.apply("> • " + choice, active_text, bold);
+            return colorPalette.apply("> • " + choice, accent, bold);
         } else {
-            return colorPalette.apply("> " + choice, active_text, bold);
+            return colorPalette.apply("> " + choice, accent, bold);
         }
     }
 
     private String selectedChoice(String choice) {
-        return colorPalette.apply("  ✓ " + choice, active_text);
+        return colorPalette.apply("  ✓ " + choice, accent);
     }
 
     private String inactiveChoice(String choice) {
@@ -257,9 +261,9 @@ public class TerminalChoice implements Choice {
 
     private String howToString() {
         if (multiSelect) {
-            return colorPalette.apply(" tab - select, arrows - move, enter - select, type to filter", secondary_info);
+            return colorPalette.apply(" tab - select, arrows - move, enter - confirm, type to filter", muted);
         } else {
-            return colorPalette.apply(" arrows - move, enter - select, type to filter", secondary_info);
+            return colorPalette.apply(" arrows - move, enter - confirm, type to filter", muted);
         }
     }
 
@@ -267,11 +271,11 @@ public class TerminalChoice implements Choice {
         var result = new StringBuilder();
 
         if (maxDisplayResults < options.size()) {
-            result.append(colorPalette.apply(String.format("Showing incomplete (%s of %s) options, use filter for lookup", visibleOptions.size(), options.size()), secondary_info));
+            result.append(colorPalette.apply(String.format("Showing incomplete (%s of %s) options, use filter for lookup", visibleOptions.size(), options.size()), muted));
         }
 
         result.append("\n")
-                .append(colorPalette.apply("?", bold, info))
+                .append(colorPalette.apply("?", bold, primary))
                 .append(" ")
                 .append(colorPalette.apply(question))
                 .append(": ")

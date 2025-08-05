@@ -7,10 +7,8 @@ import io.github.klakpin.components.api.choice.ChoiceOption;
 import io.github.klakpin.components.api.choice.comparator.FuzzyDisplayTextComparator;
 import io.github.klakpin.theme.DefaultTerminalColorPalette;
 import org.jline.terminal.Terminal;
-import org.jline.utils.InfoCmp;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -32,7 +30,7 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
             var terminal = new JlineTerminalFactory().buildTerminal();
             return new ConsoleTerminalPresenter.Builder()
                     .withTerminal(terminal)
-                    .withColorPalette(new DefaultTerminalColorPalette(Collections.emptyMap(), true))
+                    .withColorPalette(new DefaultTerminalColorPalette())
                     .withDrawingExecutor(Executors.newSingleThreadScheduledExecutor())
                     .build();
         } catch (IOException e) {
@@ -51,22 +49,22 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
 
     @Override
     public void successMessage(String message) {
-        componentsFactory.buildMessageComponent().printMessage(message, success);
+        componentsFactory.buildMessageComponent().printMessage(message, success, bold);
     }
 
     @Override
     public void errorMessage(String message) {
-        componentsFactory.buildMessageComponent().printMessage(message, error);
+        componentsFactory.buildMessageComponent().printMessage(message, error, bold);
     }
 
     @Override
     public void messageInBracket(String message) {
-        componentsFactory.buildMessageComponent().printInBracket(message, List.of(secondary_info_bracket), List.of(secondary_info));
+        componentsFactory.buildMessageComponent().printInBracket(message, List.of(muted), List.of(muted));
     }
 
     @Override
     public void errorInBracket(String message) {
-        componentsFactory.buildMessageComponent().printInBracket(message, List.of(error_bracket), List.of(secondary_info));
+        componentsFactory.buildMessageComponent().printInBracket(message, List.of(error), List.of(muted));
     }
 
     @Override
@@ -157,6 +155,11 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
     @Override
     public Boolean confirm(String confirmationText) {
         return componentsFactory.buildConfirm().confirm(confirmationText);
+    }
+
+    @Override
+    public ComponentsFactory getComponentsFactory() {
+        return componentsFactory;
     }
 
     @Override

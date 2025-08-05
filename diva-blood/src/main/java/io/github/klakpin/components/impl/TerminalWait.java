@@ -4,7 +4,6 @@ import io.github.klakpin.components.api.Wait;
 import io.github.klakpin.terminal.NoopIntConsumer;
 import io.github.klakpin.terminal.TerminalWrapper;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
-import io.github.klakpin.components.helper.TerminalCleaner;
 import io.github.klakpin.theme.ColorPalette;
 import org.apache.commons.collections4.queue.SynchronizedQueue;
 import org.jline.terminal.Cursor;
@@ -19,25 +18,45 @@ import static io.github.klakpin.theme.ColorPalette.ColorFeature.*;
 
 public class TerminalWait implements Wait {
 
+    private static final char[] steps = {'⡿', '⣟', '⣯', '⣷', '⣾', '⣽', '⣻', '⢿'};
+    private static final int INITIAL_ANIMATION_DELAY = 0;
+    private static final int ANIMATION_PERIOD = 85;
+
     private final TerminalWrapper terminal;
     private final ScheduledExecutorService drawingExecutor;
     private final ColorPalette colorPalette;
-    private final TerminalCleaner cleaner;
 
     private int step = -1;
-    private final char[] steps = {'⡿', '⣟', '⣯', '⣷', '⣾', '⣽', '⣻', '⢿'};
 
     private Queue<String> detailsBuffer;
     private Cursor initialPosition;
 
     public TerminalWait(Terminal terminal,
                         ScheduledExecutorService drawingExecutor,
-                        ColorPalette colorPalette,
-                        TerminalCleaner cleaner) {
+                        ColorPalette colorPalette) {
         this.terminal = new TerminalWrapper(terminal);
         this.drawingExecutor = drawingExecutor;
         this.colorPalette = colorPalette;
-        this.cleaner = cleaner;
+    }
+
+    @Override
+    public <T> T waitWhileWithResult(String message, CompletableFuture<T> waitWhile) {
+        detailsBuffer = null;
+
+        initialPosition = terminal.getCursorPosition(new NoopIntConsumer());
+
+        try {
+            var task = drawingExecutor.scheduleAtFixedRate(() -> updateAnimation(message), INITIAL_ANIMATION_DELAY, ANIMATION_PERIOD, TimeUnit.MILLISECONDS);
+
+            waitWhile.whenComplete((unused, throwable) -> task.cancel(true));
+
+            return waitWhile.get();
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        } finally {
+            terminal.cleanLines(1, initialPosition);
+            terminal.setCursorPosition(initialPosition.getY(), 0);
+        }
     }
 
     @Override
@@ -47,7 +66,7 @@ public class TerminalWait implements Wait {
         initialPosition = terminal.getCursorPosition(new NoopIntConsumer());
 
         try {
-            var task = drawingExecutor.scheduleAtFixedRate(() -> updateAnimation(message), 0, 85, TimeUnit.MILLISECONDS);
+            var task = drawingExecutor.scheduleAtFixedRate(() -> updateAnimation(message), INITIAL_ANIMATION_DELAY, ANIMATION_PERIOD, TimeUnit.MILLISECONDS);
 
             waitWhile.whenComplete((unused, throwable) -> task.cancel(true));
 
@@ -55,16 +74,14 @@ public class TerminalWait implements Wait {
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
-            cleaner.cleanLines(1, initialPosition);
+            terminal.cleanLines(1, initialPosition);
             terminal.setCursorPosition(initialPosition.getY(), 0);
         }
     }
 
-
     private void updateAnimation(String message) {
         terminal.puts(InfoCmp.Capability.cursor_address, initialPosition.getY(), 0);
-        terminal.writer().flush();
-
+        terminal.flush();
 
         if (step < steps.length - 1) {
             step++;
@@ -73,15 +90,15 @@ public class TerminalWait implements Wait {
         }
 
         if (detailsBuffer != null) {
-            detailsBuffer.forEach(s -> terminal.writer().println(colorPalette.apply(s, secondary_info)));
+            detailsBuffer.forEach(s -> terminal.writer().println(colorPalette.apply(s, muted)));
         }
 
-        terminal.writer().print(colorPalette.apply(String.valueOf(steps[step]), loading_spinner) + " " + message);
+        terminal.writer().print(colorPalette.apply(String.valueOf(steps[step]), warning) + " " + message);
     }
 
     @Override
     public void waitWhileWithDetails(String message, SubmissionPublisher<String> details, int maxLines) {
-        cleaner.forwardCleanup(maxLines);
+        terminal.forwardCleanup(maxLines);
 
         initialPosition = terminal.getCursorPosition(new NoopIntConsumer());
         initialPosition = new Cursor(initialPosition.getX(), initialPosition.getY() - maxLines);
@@ -90,8 +107,8 @@ public class TerminalWait implements Wait {
 
         try {
             var drawingTask = drawingExecutor.scheduleAtFixedRate(() -> updateAnimation(message),
-                    25 /* small initial delay for forward cleanup to be rendered */,
-                    85,
+                    INITIAL_ANIMATION_DELAY + 25 /* small initial delay for forward cleanup to be rendered */,
+                    ANIMATION_PERIOD,
                     TimeUnit.MILLISECONDS
             );
 
@@ -110,7 +127,7 @@ public class TerminalWait implements Wait {
             throw new RuntimeException(e);
         } finally {
             // +1 for the line with a spinner
-            cleaner.cleanLines(maxLines + 1, initialPosition);
+            terminal.cleanLines(maxLines + 1, initialPosition);
             terminal.setCursorPosition(initialPosition.getY(), initialPosition.getX());
         }
     }

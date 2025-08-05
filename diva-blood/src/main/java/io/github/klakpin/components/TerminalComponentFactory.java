@@ -9,7 +9,6 @@ import io.github.klakpin.components.helper.TerminalCleaner;
 import io.github.klakpin.components.impl.TerminalConfirm;
 import io.github.klakpin.components.impl.TerminalMessage;
 import io.github.klakpin.components.impl.TerminalPrompt;
-import io.github.klakpin.components.impl.choice.TerminalChoice;
 import io.github.klakpin.components.impl.TerminalWait;
 import io.github.klakpin.components.impl.choice.TerminalChoiceBuilder;
 import io.github.klakpin.theme.ColorPalette;
@@ -33,7 +32,7 @@ public class TerminalComponentFactory implements ComponentsFactory {
 
     @Override
     public Wait buildWaitComponent() {
-        return new TerminalWait(terminal, drawingExecutor, colorPalette, cleaner());
+        return new TerminalWait(terminal, drawingExecutor, colorPalette);
     }
 
     @Override
