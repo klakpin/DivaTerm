@@ -5,6 +5,7 @@ import io.github.klakpin.components.api.choice.Choice;
 import io.github.klakpin.components.api.Message;
 import io.github.klakpin.components.api.Prompt;
 import io.github.klakpin.components.api.Wait;
+import org.jline.terminal.Terminal;
 
 public interface ComponentsFactory extends AutoCloseable {
     /**
@@ -41,4 +42,11 @@ public interface ComponentsFactory extends AutoCloseable {
      * @return a new Confirm component instance
      */
     Confirm buildConfirm();
+
+    /**
+     * Get underlying org.jline.terminal.Terminal instance that is used by the ComponentsFactory.
+     *
+     * @return the instance of org.jline.terminal.Terminal that is used by this ComponentsFactory.
+     */
+    Terminal getTerminal();
 }
