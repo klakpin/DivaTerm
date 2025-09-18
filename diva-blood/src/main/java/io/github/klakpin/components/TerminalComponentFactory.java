@@ -57,6 +57,11 @@ public class TerminalComponentFactory implements ComponentsFactory {
         return new TerminalConfirm(terminal, colorPalette);
     }
 
+    @Override
+    public Terminal getTerminal() {
+        return terminal;
+    }
+
     private TerminalCleaner cleaner() {
         return new TerminalCleaner(terminal);
     }

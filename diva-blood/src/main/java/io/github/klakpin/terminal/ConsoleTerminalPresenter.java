@@ -171,7 +171,7 @@ public class ConsoleTerminalPresenter implements TerminalPresenter {
         }
     }
 
-    static class Builder {
+    public static class Builder {
         private Terminal terminal;
         private ScheduledExecutorService drawingExecutor;
         private DefaultTerminalColorPalette colorPalette;
